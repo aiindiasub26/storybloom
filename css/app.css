@@ -250,3 +250,27 @@ input.name-in { font: inherit; font-size: 30px; padding: 10px 18px; border: 3px 
 .win-bar .cutout { flex: 1 1 auto; min-width: 0; }
 #stage.portrait .win-bar .cutout span { font-size: 26px !important; padding: 1px 5px; }
 #stage.portrait .win-bar .pbtn.small { font-size: 16px; padding: 6px 10px; }
+/* print preview */
+.preview-wrap { position: absolute; inset: 0 30px 24px; display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 26px; }
+#stage.portrait .preview-wrap { grid-template-columns: 1fr; grid-template-rows: minmax(0,1fr) auto; }
+.preview-holder { position: relative; min-height: 0; overflow: hidden; display: flex; justify-content: center; }
+.sheet-preview { width: 718px; height: 1040px; flex: none; background: #fff; transform-origin: top center; box-shadow: 0 6px 24px rgba(0,0,0,.18); outline: 1px solid #ddd; padding: 0; color: #000; font-family: var(--read); }
+.sheet-preview .sheet { width: 718px !important; height: 1040px !important; position: relative; overflow: hidden; }
+.preview-side { display: flex; flex-direction: column; gap: 16px; justify-content: center; text-align: center; }
+#stage.portrait .preview-side { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+/* songs */
+.song-layout { grid-template-columns: 1fr 1.15fr !important; }
+#stage.portrait .song-layout { grid-template-columns: 1fr !important; grid-template-rows: 0.9fr 1fr !important; }
+.song-side { display: flex; flex-direction: column; justify-content: center; gap: 14px; min-width: 0; padding-bottom: 6px; }
+.lyrics { font-family: var(--read); font-size: 34px; line-height: 1.35; min-height: 260px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.lyrics.many { font-size: 24px; }
+.lyric { opacity: .45; transition: opacity .25s, transform .25s; }
+.lyric.on { opacity: 1; transform: translateX(8px); }
+.lyric.on .w { background: var(--yellow); border-radius: 8px; color: var(--ink); }
+.song-bar { flex: 1; height: 16px; background: #e7dcc6; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; cursor: pointer; }
+.song-bar i { display: block; height: 100%; width: 0; background: var(--orange); }
+.song-cover { transform: rotate(-1.5deg); }
+.song-cover.dancing { animation: dance .55s ease-in-out infinite alternate; }
+.song-cover.dancing img { animation: none; }
+@keyframes dance { from { transform: rotate(-4deg) translateY(0) scale(1); } to { transform: rotate(4deg) translateY(-14px) scale(1.03); } }
+a.pbtn { color: var(--ink); display: inline-block; }

@@ -42,8 +42,7 @@
     });
   }
 
-  function printActivity(a) {
-    printSheets([`<div class="sheet" style="padding:10mm;font-family:Andika,sans-serif">
+  window.activitySheet = a => ([`<div class="sheet" style="padding:10mm;font-family:Andika,sans-serif">
       <div style="font-size:60px">${a.icon}</div>
       <h1 style="font-family:Fredoka;margin:4px 0">${a.title}</h1>
       <p style="font-size:16px">📍 ${a.where} &nbsp; ⏱ ${a.time} &nbsp; 👧 Ages ${a.age}</p>
@@ -51,5 +50,5 @@
       <h2>Steps</h2><ol style="font-size:18px;line-height:1.6">${a.steps.map(n => `<li>${n}</li>`).join("")}</ol>
       <p style="font-size:18px;border:2px dashed #999;padding:10px;border-radius:10px">💡 ${a.tip}</p>
       <p style="margin-top:20mm;font-size:16px">We did it on: ____________ &nbsp; ⭐⭐⭐</p></div>`]);
-  }
+  function printActivity(a) { printSheets(activitySheet(a), { file: "activity-cards.pdf", page: ACTIVITIES.indexOf(a) + 1 }); }
 })();

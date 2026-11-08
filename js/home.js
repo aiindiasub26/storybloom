@@ -11,7 +11,7 @@
     home.append(h("div", { class: "home-head" },
       h("div", {}, h("div", { class: "logo" }, cutout("StoryBloom", 54)), h("div", { class: "hand", style: { fontSize: "30px", marginLeft: "10px", marginTop: "2px" } }, greet + " ✿")),
       h("div", { class: "home-tools" },
-        h("button", { class: "star-count", onclick: openStickers }, "⭐ " + APP.stars),
+        h("button", { class: "star-count", onclick: openStickers, title: "My Sticker Book" }, "⭐ " + APP.stars + " · Stickers"),
         h("button", { class: "icon-btn", title: "Grown-ups", onclick: openGrownups }, "⚙️"))));
 
     const tiles = h("div", { class: "tiles" });
@@ -20,7 +20,7 @@
       { img: "assets/img/home/night.webp", title: "Bedtime Stories", sub: "20 stories with sounds", emo: "🌙", fn: openStories },
       { img: "assets/img/home/make.webp", title: "Make Together", sub: "16 hands-on ideas", emo: "✂️", fn: openMakeTogether },
       { img: "assets/img/home/print.webp", title: "Print Shop", sub: "Worksheets & colouring", emo: "🖨️", fn: openPrintShop },
-      { img: "assets/img/reader/picnic.webp", title: "Sticker Book", sub: "See your rewards", emo: "⭐", fn: openStickers }
+      { img: "assets/img/songs/jungle-groove.webp", title: "Sing Along", sub: "10 songs to dance & read", emo: "🎵", fn: openSongs }
     ];
     T.forEach(t => {
       const tile = h("button", { class: "tile " + (t.cls || ""), onclick: () => { SFX.unlock(); t.fn(); } },

@@ -62,13 +62,14 @@
     if (key && !S.done[key]) { S.done[key] = 1; newSticker = STICKERS[S.stickers.length % STICKERS.length]; S.stickers.push(newSticker); }
     save(); updateStarCount(); return newSticker;
   };
-  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => e.textContent = "⭐ " + S.stars);
+  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => e.textContent = "⭐ " + S.stars + " · Stickers");
 
   /* ---------------- audio: clips, words, narration ---------------- */
   const AUD = "assets/audio/";
   let current = null;
   window.stopAudio = function () {
     if (current) { current.pause(); current.onended = null; current = null; }
+    if (window.stopSong && !window.__keepSong) window.stopSong();
     if (window.speechSynthesis) speechSynthesis.cancel();
     cancelAnimationFrame(rafId);
   };

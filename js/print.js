@@ -6,15 +6,49 @@
   ];
   const PIC = {}; CVC.forEach(c => PIC[c.w] = c.pic);
 
-  /* ---------- printing engine ---------- */
-  window.printSheets = function (sheets) {
+  /* ---------- printing engine ----------
+     Every print opens an on-screen preview. From there: print directly (works on GitHub Pages / installed app),
+     or open the matching ready-made PDF (works everywhere, incl. iPad Share → Print and hosts that block printing). */
+  const IN_FRAME = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  function doPrint(sheets) {
     const root = $("#print-root"); root.innerHTML = sheets.join("");
     const imgs = [...root.querySelectorAll("img")];
-    Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })))
+    return Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })))
       .then(() => (document.fonts ? document.fonts.ready : 1))
-      .then(() => setTimeout(() => { window.print(); }, 150));
-  };
+      .then(() => new Promise(r => setTimeout(() => { try { window.print(); } catch (e) {} r(); }, 150)));
+  }
   window.addEventListener("afterprint", () => { $("#print-root").innerHTML = ""; });
+  // pdf: { file: "letters.pdf", page: 3 } (optional)
+  window.printSheets = function (sheets, pdf) {
+    if (window.__PDF_EXPORT) return doPrint(sheets); // used when building the PDF packs
+    openWin({
+      title: "Print preview",
+      build(body) {
+        const W = 718, H = 1040; // A4 sheet at 96dpi
+        const paper = h("div", { class: "sheet-preview" });
+        paper.innerHTML = sheets[0];
+        const holder = h("div", { class: "preview-holder" }, paper);
+        const fit = () => { const r = holder.getBoundingClientRect(), z = parseFloat($("#stage").style.transform.replace(/[^0-9.]/g, "")) || 1; const sc = Math.min((r.height / z - 10) / H, (r.width / z - 10) / W); paper.style.transform = `scale(${sc})`; };
+        const pdfUrl = pdf ? `assets/print/${pdf.file}${pdf.page ? "#page=" + pdf.page : ""}` : null;
+        const btns = h("div", { class: "preview-side" },
+          h("div", { style: { fontSize: "70px" } }, "🖨️"),
+          h("div", { class: "t", style: { fontSize: "26px", fontWeight: 700 } }, sheets.length > 1 ? sheets.length + " pages ready" : "Your sheet is ready"),
+          IN_FRAME ? h("div", { class: "hand", style: { fontSize: "24px" } }, "Printing is switched off on this preview page. Open the PDF, or use the app from its own web address.") : null,
+          h("button", { class: "pbtn green", onclick: () => doPrint(sheets) }, "🖨 Print now"),
+          pdfUrl ? h("a", { class: "pbtn blue", href: pdfUrl, target: "_blank", rel: "noopener", style: { textDecoration: "none", textAlign: "center" } }, "📄 Open PDF") : null,
+          h("div", { class: "hand", style: { fontSize: "22px", color: "var(--ink-soft)" } }, "Tip: on iPad, open the PDF and tap Share → Print."));
+        body.append(h("div", { class: "preview-wrap" }, holder, btns));
+        requestAnimationFrame(fit);
+      }
+    });
+  };
+  window.PDF_PACKS = [
+    { file: "letters-a-z.pdf", t: "Letter tracing A–Z", n: 26 }, { file: "sight-words.pdf", t: "Sight words (4 sets)", n: 4 },
+    { file: "word-families.pdf", t: "Word families", n: 10 }, { file: "phonics-practice.pdf", t: "Cut & match + beginning sounds", n: 6 },
+    { file: "story-order.pdf", t: "Story order (20 stories)", n: 20 }, { file: "reader-questions.pdf", t: "Reader questions", n: 6 },
+    { file: "colouring.pdf", t: "Colouring pages", n: 8 }, { file: "activity-cards.pdf", t: "Make Together cards", n: 16 },
+    { file: "reading-chart.pdf", t: "Reading star chart", n: 1 }
+  ];
 
   const head = (title, sub = "") => `<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #222;padding-bottom:3mm;margin-bottom:5mm">
     <div><div style="font-family:Fredoka;font-weight:700;font-size:26pt">${title}</div><div style="font-size:12pt;color:#555">${sub}</div></div>
@@ -130,18 +164,31 @@
     }
   };
 
+  window.MAKERS = MAKERS; window.COLOURING = COLOURING;
+  function openPdfPacks() {
+    openWin({
+      title: "PDF Packs",
+      build(body) {
+        body.append(h("div", { class: "hand hint" }, "Open, save or print complete sets"));
+        pager(body, PDF_PACKS, 9, p => h("a", { class: "pick", href: "assets/print/" + p.file, target: "_blank", rel: "noopener", style: { textDecoration: "none", color: "inherit" } },
+          h("div", { class: "big-emo" }, "📄"), h("div", { class: "t", style: { fontSize: "22px" } }, p.t), h("div", { class: "s" }, p.n + (p.n > 1 ? " pages" : " page") + " · PDF")), { cols: $("#stage").classList.contains("portrait") ? 3 : 3 });
+      }
+    });
+  }
+
   /* ---------- UI ---------- */
   const ITEMS = [
-    { k: "letter", emo: "🔤", t: "Letter Tracing", s: "A–Z, pick a letter", pick: () => chooser("Pick a letter", LETTERS.map(L => ({ label: L.l.toUpperCase() + L.l, sub: L.pic, v: L.l })), v => printSheets([MAKERS.letter(v)]), 7) },
+    { k: "letter", emo: "🔤", t: "Letter Tracing", s: "A–Z, pick a letter", pick: () => chooser("Pick a letter", LETTERS.map(L => ({ label: L.l.toUpperCase() + L.l, sub: L.pic, v: L.l })), v => printSheets([MAKERS.letter(v)], { file: "letters-a-z.pdf", page: LETTERS.findIndex(L => L.l === v) + 1 }), 7) },
     { k: "name", emo: "🧒", t: "Name Tracing", s: "Type a name", pick: nameDialog },
-    { k: "sight", emo: "👀", t: "Sight Words", s: "Read, trace, find", pick: () => chooser("Pick a word set", SIGHT.map((s, i) => ({ label: s.name, sub: s.words.slice(0, 4).join(" "), v: i })), v => printSheets([MAKERS.sight(v)]), 4) },
-    { k: "cut", emo: "✂️", t: "Cut & Match", s: "Pictures + words", pick: () => printSheets([MAKERS.cutmatch()]) },
-    { k: "family", emo: "🏠", t: "Word Families", s: "-at, -ug, -en…", pick: () => chooser("Pick a word family", Object.keys(FAMILIES).map(f => ({ label: "-" + f, sub: FAMILIES[f].slice(0, 3).join(" "), v: f })), v => printSheets([MAKERS.family(v)]), 5) },
-    { k: "begin", emo: "👂", t: "Beginning Sounds", s: "Circle the picture", pick: () => printSheets([MAKERS.begin()]) },
-    { k: "seq", emo: "📚", t: "Story Order", s: "For any story", pick: () => chooser("Pick a story", STORIES.map(s => ({ label: s.title, img: `assets/img/story/${s.id}-0.webp`, v: s.id })), v => printSheets([MAKERS.sequence(v)]), 5) },
-    { k: "reader", emo: "📖", t: "Reader Questions", s: "6 little readers", pick: () => chooser("Pick a book", READERS.map(b => ({ label: b.title, sub: "Level " + b.level, img: `assets/img/reader/${b.id}.webp`, v: b.id })), v => printSheets([MAKERS.reader(v)]), 3) },
-    { k: "chart", emo: "⭐", t: "Reading Chart", s: "Monthly star chart", pick: () => printSheets([MAKERS.chart()]) },
-    { k: "colour", emo: "🖍️", t: "Colouring Pages", s: "Print or colour here", pick: openColouringGallery }
+    { k: "sight", emo: "👀", t: "Sight Words", s: "Read, trace, find", pick: () => chooser("Pick a word set", SIGHT.map((s, i) => ({ label: s.name, sub: s.words.slice(0, 4).join(" "), v: i })), v => printSheets([MAKERS.sight(v)], { file: "sight-words.pdf", page: v + 1 }), 4) },
+    { k: "cut", emo: "✂️", t: "Cut & Match", s: "Pictures + words", pick: () => printSheets([MAKERS.cutmatch()], { file: "phonics-practice.pdf", page: 1 }) },
+    { k: "family", emo: "🏠", t: "Word Families", s: "-at, -ug, -en…", pick: () => chooser("Pick a word family", Object.keys(FAMILIES).map(f => ({ label: "-" + f, sub: FAMILIES[f].slice(0, 3).join(" "), v: f })), v => printSheets([MAKERS.family(v)], { file: "word-families.pdf", page: Object.keys(FAMILIES).indexOf(v) + 1 }), 5) },
+    { k: "begin", emo: "👂", t: "Beginning Sounds", s: "Circle the picture", pick: () => printSheets([MAKERS.begin()], { file: "phonics-practice.pdf", page: 4 }) },
+    { k: "seq", emo: "📚", t: "Story Order", s: "For any story", pick: () => chooser("Pick a story", STORIES.map(s => ({ label: s.title, img: `assets/img/story/${s.id}-0.webp`, v: s.id })), v => printSheets([MAKERS.sequence(v)], { file: "story-order.pdf", page: STORIES.findIndex(s => s.id === v) + 1 }), 5) },
+    { k: "reader", emo: "📖", t: "Reader Questions", s: "6 little readers", pick: () => chooser("Pick a book", READERS.map(b => ({ label: b.title, sub: "Level " + b.level, img: `assets/img/reader/${b.id}.webp`, v: b.id })), v => printSheets([MAKERS.reader(v)], { file: "reader-questions.pdf", page: READERS.findIndex(b => b.id === v) + 1 }), 3) },
+    { k: "chart", emo: "⭐", t: "Reading Chart", s: "Monthly star chart", pick: () => printSheets([MAKERS.chart()], { file: "reading-chart.pdf" }) },
+    { k: "colour", emo: "🖍️", t: "Colouring Pages", s: "Print or colour here", pick: openColouringGallery },
+    { k: "pdfs", emo: "📄", t: "PDF Packs", s: "Download all sheets", pick: openPdfPacks }
   ];
 
   window.openPrintShop = function () {
@@ -195,7 +242,7 @@
           h("div", { class: "t", style: { fontSize: "20px" } }, c.t),
           h("div", { style: { display: "flex", gap: "8px" } },
             h("button", { class: "pbtn small green", onclick: () => openColouring(c) }, "🖍 Colour"),
-            h("button", { class: "pbtn small white", onclick: () => printSheets([MAKERS.colour(c.id)]) }, "🖨"))), { cols });
+            h("button", { class: "pbtn small white", onclick: () => printSheets([MAKERS.colour(c.id)], { file: "colouring.pdf", page: COLOURING.indexOf(c) + 1 }) }, "🖨"))), { cols });
       }
     });
   }
