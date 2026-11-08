@@ -2,44 +2,44 @@
 
 // Letter sounds. say = what the narrator says (sound, sound, word).
 window.LETTERS = [
-  { l: "a", word: "apple", pic: "🍎", say: "ah... ah... apple" },
-  { l: "b", word: "ball", pic: "⚽", say: "buh... buh... ball" },
-  { l: "c", word: "cat", pic: "🐱", say: "kuh... kuh... cat" },
-  { l: "d", word: "dog", pic: "🐶", say: "duh... duh... dog" },
-  { l: "e", word: "egg", pic: "🥚", say: "eh... eh... egg" },
-  { l: "f", word: "fish", pic: "🐟", say: "fff... fff... fish" },
-  { l: "g", word: "goat", pic: "🐐", say: "guh... guh... goat" },
-  { l: "h", word: "hat", pic: "🎩", say: "hh... hh... hat" },
-  { l: "i", word: "insect", pic: "🐛", say: "ih... ih... insect" },
-  { l: "j", word: "juice", pic: "🧃", say: "juh... juh... juice" },
-  { l: "k", word: "kite", pic: "🪁", say: "kuh... kuh... kite" },
-  { l: "l", word: "lion", pic: "🦁", say: "lll... lll... lion" },
-  { l: "m", word: "moon", pic: "🌙", say: "mmm... mmm... moon" },
-  { l: "n", word: "nose", pic: "👃", say: "nnn... nnn... nose" },
-  { l: "o", word: "octopus", pic: "🐙", say: "aw... aw... octopus" },
-  { l: "p", word: "pig", pic: "🐷", say: "puh... puh... pig" },
-  { l: "q", word: "queen", pic: "👑", say: "kwuh... kwuh... queen" },
-  { l: "r", word: "rabbit", pic: "🐰", say: "rrr... rrr... rabbit" },
-  { l: "s", word: "sun", pic: "☀️", say: "sss... sss... sun" },
-  { l: "t", word: "tiger", pic: "🐯", say: "tuh... tuh... tiger" },
-  { l: "u", word: "umbrella", pic: "☂️", say: "uh... uh... umbrella" },
-  { l: "v", word: "van", pic: "🚐", say: "vvv... vvv... van" },
-  { l: "w", word: "watermelon", pic: "🍉", say: "wuh... wuh... watermelon" },
-  { l: "x", word: "fox", pic: "🦊", say: "ks... ks... fox" },
-  { l: "y", word: "yo-yo", pic: "🪀", say: "yuh... yuh... yo-yo" },
-  { l: "z", word: "zebra", pic: "🦓", say: "zzz... zzz... zebra" }
+  { l: "a", word: "apple", pic: "apple", say: "ah... ah... apple" },
+  { l: "b", word: "ball", pic: "ball", say: "buh... buh... ball" },
+  { l: "c", word: "cat", pic: "cat", say: "kuh... kuh... cat" },
+  { l: "d", word: "dog", pic: "dog", say: "duh... duh... dog" },
+  { l: "e", word: "egg", pic: "egg", say: "eh... eh... egg" },
+  { l: "f", word: "fish", pic: "fish", say: "fff... fff... fish" },
+  { l: "g", word: "goat", pic: "goat", say: "guh... guh... goat" },
+  { l: "h", word: "hat", pic: "hat", say: "hh... hh... hat" },
+  { l: "i", word: "insect", pic: "insect", say: "ih... ih... insect" },
+  { l: "j", word: "juice", pic: "juice", say: "juh... juh... juice" },
+  { l: "k", word: "kite", pic: "kite", say: "kuh... kuh... kite" },
+  { l: "l", word: "lion", pic: "lion", say: "lll... lll... lion" },
+  { l: "m", word: "moon", pic: "moon", say: "mmm... mmm... moon" },
+  { l: "n", word: "nose", pic: "nose", say: "nnn... nnn... nose" },
+  { l: "o", word: "octopus", pic: "octopus", say: "aw... aw... octopus" },
+  { l: "p", word: "pig", pic: "pig", say: "puh... puh... pig" },
+  { l: "q", word: "queen", pic: "queen", say: "kwuh... kwuh... queen" },
+  { l: "r", word: "rabbit", pic: "rabbit", say: "rrr... rrr... rabbit" },
+  { l: "s", word: "sun", pic: "sun", say: "sss... sss... sun" },
+  { l: "t", word: "tiger", pic: "tiger", say: "tuh... tuh... tiger" },
+  { l: "u", word: "umbrella", pic: "umbrella", say: "uh... uh... umbrella" },
+  { l: "v", word: "van", pic: "van", say: "vvv... vvv... van" },
+  { l: "w", word: "watermelon", pic: "watermelon", say: "wuh... wuh... watermelon" },
+  { l: "x", word: "fox", pic: "fox", say: "ks... ks... fox" },
+  { l: "y", word: "yo-yo", pic: "yo-yo", say: "yuh... yuh... yo-yo" },
+  { l: "z", word: "zebra", pic: "zebra", say: "zzz... zzz... zebra" }
 ];
 
 // Picture-able CVC words for blending, spelling and matching games.
 window.CVC = [
-  { w: "cat", pic: "🐱" }, { w: "bat", pic: "🦇" }, { w: "hat", pic: "🎩" }, { w: "rat", pic: "🐀" },
-  { w: "map", pic: "🗺️" }, { w: "cap", pic: "🧢" }, { w: "fan", pic: "🪭" }, { w: "pan", pic: "🍳" },
-  { w: "van", pic: "🚐" }, { w: "bed", pic: "🛏️" }, { w: "hen", pic: "🐔" }, { w: "pen", pic: "🖊️" },
-  { w: "ten", pic: "🔟" }, { w: "net", pic: "🥅" }, { w: "jet", pic: "✈️" }, { w: "web", pic: "🕸️" },
-  { w: "pig", pic: "🐷" }, { w: "zip", pic: "🤐" }, { w: "lip", pic: "👄" }, { w: "six", pic: "6️⃣" },
-  { w: "dog", pic: "🐶" }, { w: "fox", pic: "🦊" }, { w: "box", pic: "📦" }, { w: "log", pic: "🪵" },
-  { w: "pot", pic: "🍲" }, { w: "bug", pic: "🐛" }, { w: "mug", pic: "☕" }, { w: "hug", pic: "🤗" },
-  { w: "sun", pic: "☀️" }, { w: "bun", pic: "🍞" }, { w: "cup", pic: "🥤" }, { w: "bus", pic: "🚌" }
+  { w: "cat", pic: "cat" }, { w: "bat", pic: "bat" }, { w: "hat", pic: "hat" }, { w: "rat", pic: "rat" },
+  { w: "map", pic: "map" }, { w: "cap", pic: "cap" }, { w: "fan", pic: "fan" }, { w: "pan", pic: "pan" },
+  { w: "van", pic: "van" }, { w: "bed", pic: "bed" }, { w: "hen", pic: "hen" }, { w: "pen", pic: "pen" },
+  { w: "ten", pic: "ten" }, { w: "net", pic: "net" }, { w: "jet", pic: "jet" }, { w: "web", pic: "web" },
+  { w: "pig", pic: "pig" }, { w: "zip", pic: "zip" }, { w: "lip", pic: "lip" }, { w: "six", pic: "six" },
+  { w: "dog", pic: "dog" }, { w: "fox", pic: "fox" }, { w: "box", pic: "box" }, { w: "log", pic: "log" },
+  { w: "pot", pic: "pot" }, { w: "bug", pic: "bug" }, { w: "mug", pic: "mug" }, { w: "hug", pic: "hug" },
+  { w: "sun", pic: "sun" }, { w: "bun", pic: "bun" }, { w: "cup", pic: "cup" }, { w: "bus", pic: "bus" }
 ];
 
 // Word families for rhyme time + printable word houses.
@@ -70,7 +70,7 @@ window.READERS = [
     id: "cat-mat", title: "The Cat", level: 1, color: "#f6aea9",
     pages: ["I see a cat.", "The cat is fat.", "The cat can sit.", "The cat sat on a mat.", "Good cat!"],
     qs: [
-      { q: "What did you see?", opts: ["🐱 a cat", "🐶 a dog", "🐷 a pig"], a: 0 },
+      { q: "What did you see?", opts: ["a cat", "a dog", "a pig"], a: 0 },
       { q: "Where did the cat sit?", opts: ["on a mat", "on a bus", "in a box"], a: 0 }
     ]
   },

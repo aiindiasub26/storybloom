@@ -489,5 +489,358 @@ window.SONGS = {
 ],
 "name": "Verse 4"
 }
+],
+"head-shoulders": [
+{
+"ms": 4000,
+"lines": [
+"Ready? Let's move!"
+],
+"name": "Intro"
+},
+{
+"ms": 18000,
+"lines": [
+"Head, shoulders, knees and toes, knees and toes",
+"Head, shoulders, knees and toes, knees and toes",
+"And eyes and ears and mouth and nose",
+"Head, shoulders, knees and toes, knees and toes"
+],
+"name": "Verse 1"
+},
+{
+"ms": 15000,
+"lines": [
+"Head, shoulders, knees and toes, knees and toes",
+"Head, shoulders, knees and toes, knees and toes",
+"And eyes and ears and mouth and nose",
+"Head, shoulders, knees and toes, knees and toes"
+],
+"name": "Verse 2 faster"
+},
+{
+"ms": 12000,
+"lines": [
+"Head, shoulders, knees and toes, knees and toes",
+"Head, shoulders, knees and toes, knees and toes",
+"And eyes and ears and mouth and nose",
+"Head, shoulders, knees and toes, knees and toes!"
+],
+"name": "Verse 3 super fast"
+}
+],
+"if-youre-happy": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 16000,
+"lines": [
+"If you're happy and you know it, clap your hands",
+"If you're happy and you know it, clap your hands",
+"If you're happy and you know it, then your face will surely show it",
+"If you're happy and you know it, clap your hands"
+],
+"name": "Verse 1"
+},
+{
+"ms": 16000,
+"lines": [
+"If you're happy and you know it, stomp your feet",
+"If you're happy and you know it, stomp your feet",
+"If you're happy and you know it, then your face will surely show it",
+"If you're happy and you know it, stomp your feet"
+],
+"name": "Verse 2"
+},
+{
+"ms": 16000,
+"lines": [
+"If you're happy and you know it, shout hooray",
+"If you're happy and you know it, shout hooray",
+"If you're happy and you know it, then your face will surely show it",
+"If you're happy and you know it, shout hooray!"
+],
+"name": "Verse 3"
+}
+],
+"five-monkeys": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 14000,
+"lines": [
+"Five little monkeys jumping on the bed",
+"One fell off and bumped his head",
+"Mama called the doctor and the doctor said",
+"No more monkeys jumping on the bed!"
+],
+"name": "Verse 1"
+},
+{
+"ms": 14000,
+"lines": [
+"Four little monkeys jumping on the bed",
+"One fell off and bumped his head",
+"Mama called the doctor and the doctor said",
+"No more monkeys jumping on the bed!"
+],
+"name": "Verse 2"
+},
+{
+"ms": 14000,
+"lines": [
+"Three little monkeys jumping on the bed",
+"One fell off and bumped his head",
+"Mama called the doctor and the doctor said",
+"No more monkeys jumping on the bed!"
+],
+"name": "Verse 3"
+},
+{
+"ms": 14000,
+"lines": [
+"Two little monkeys jumping on the bed",
+"One fell off and bumped his head",
+"Mama called the doctor and the doctor said",
+"No more monkeys jumping on the bed!"
+],
+"name": "Verse 4"
+},
+{
+"ms": 15000,
+"lines": [
+"One little monkey jumping on the bed",
+"He fell off and bumped his head",
+"Mama called the doctor and the doctor said",
+"Put those monkeys straight to bed!"
+],
+"name": "Verse 5"
+}
+],
+"itsy-bitsy": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 18000,
+"lines": [
+"The itsy bitsy spider climbed up the water spout",
+"Down came the rain and washed the spider out",
+"Out came the sun and dried up all the rain",
+"And the itsy bitsy spider climbed up the spout again"
+],
+"name": "Verse 1"
+},
+{
+"ms": 18000,
+"lines": [
+"The itsy bitsy spider climbed up the water spout",
+"Down came the rain and washed the spider out",
+"Out came the sun and dried up all the rain",
+"And the itsy bitsy spider climbed up the spout again!"
+],
+"name": "Verse 2"
+}
+],
+"row-your-boat": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 14000,
+"lines": [
+"Row, row, row your boat, gently down the stream",
+"Merrily, merrily, merrily, merrily, life is but a dream"
+],
+"name": "Verse 1"
+},
+{
+"ms": 14000,
+"lines": [
+"Row, row, row your boat, gently down the creek",
+"If you see a little mouse, don't forget to squeak!"
+],
+"name": "Verse 2"
+},
+{
+"ms": 14000,
+"lines": [
+"Row, row, row your boat, gently to the shore",
+"If you see a lion there, don't forget to roar!"
+],
+"name": "Verse 3"
+},
+{
+"ms": 14000,
+"lines": [
+"Row, row, row your boat, gently down the river",
+"If you see a polar bear, don't forget to shiver!"
+],
+"name": "Verse 4"
+}
+],
+"baa-baa": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 16000,
+"lines": [
+"Baa, baa, black sheep, have you any wool?",
+"Yes sir, yes sir, three bags full",
+"One for the master, one for the dame",
+"And one for the little boy who lives down the lane"
+],
+"name": "Verse 1"
+},
+{
+"ms": 16000,
+"lines": [
+"Baa, baa, black sheep, have you any wool?",
+"Yes sir, yes sir, three bags full",
+"One for the master, one for the dame",
+"And one for the little girl who lives down the lane"
+],
+"name": "Verse 2"
+}
+],
+"humpty-dumpty": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 16000,
+"lines": [
+"Humpty Dumpty sat on a wall",
+"Humpty Dumpty had a great fall",
+"All the king's horses and all the king's men",
+"Couldn't put Humpty together again"
+],
+"name": "Verse 1"
+},
+{
+"ms": 16000,
+"lines": [
+"Humpty Dumpty sat on a wall",
+"Humpty Dumpty had a great fall",
+"Now all his friends came to help him again",
+"And Humpty was happy, together again!"
+],
+"name": "Verse 2"
+}
+],
+"hickory-dickory": [
+{
+"ms": 4000,
+"lines": [
+"Tick tock!"
+],
+"name": "Intro"
+},
+{
+"ms": 14000,
+"lines": [
+"Hickory dickory dock, the mouse ran up the clock",
+"The clock struck one, the mouse ran down",
+"Hickory dickory dock"
+],
+"name": "Verse 1"
+},
+{
+"ms": 14000,
+"lines": [
+"Hickory dickory dock, the mouse ran up the clock",
+"The clock struck two, the mouse said boo!",
+"Hickory dickory dock"
+],
+"name": "Verse 2"
+},
+{
+"ms": 14000,
+"lines": [
+"Hickory dickory dock, the mouse ran up the clock",
+"The clock struck three, the mouse said whee!",
+"Hickory dickory dock"
+],
+"name": "Verse 3"
+}
+],
+"five-ducks": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 16000,
+"lines": [
+"Five little ducks went out one day",
+"Over the hill and far away",
+"Mother duck said quack, quack, quack, quack",
+"But only four little ducks came back"
+],
+"name": "Verse 1"
+},
+{
+"ms": 16000,
+"lines": [
+"Four little ducks went out one day",
+"Over the hill and far away",
+"Mother duck said quack, quack, quack, quack",
+"But only three little ducks came back"
+],
+"name": "Verse 2"
+},
+{
+"ms": 16000,
+"lines": [
+"Three little ducks went out one day",
+"Over the hill and far away",
+"Mother duck said quack, quack, quack, quack",
+"And all the little ducks came waddling back!"
+],
+"name": "Verse 3"
+}
+],
+"mary-lamb": [
+{
+"ms": 4000,
+"lines": [],
+"name": "Intro"
+},
+{
+"ms": 16000,
+"lines": [
+"Mary had a little lamb, little lamb, little lamb",
+"Mary had a little lamb, its fleece was white as snow",
+"Everywhere that Mary went, Mary went, Mary went",
+"Everywhere that Mary went, the lamb was sure to go"
+],
+"name": "Verse 1"
+},
+{
+"ms": 16000,
+"lines": [
+"It followed her to school one day, school one day, school one day",
+"It followed her to school one day, which made the children laugh and play",
+"Laugh and play, laugh and play",
+"It made the children laugh and play to see a lamb at school"
+],
+"name": "Verse 2"
+}
 ]
 };

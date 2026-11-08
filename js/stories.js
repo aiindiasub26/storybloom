@@ -22,11 +22,11 @@
         let filter = "all";
         const tabs = h("div", { class: "tabs", style: { position: "absolute", top: "-78px", right: "24px", display: "flex", gap: "12px" } });
         const mk = (k, label) => h("button", { class: "pbtn small " + (k === filter ? "yellow" : "white"), onclick: () => { filter = k; SFX.play("tap"); draw(); } }, label);
-        const lull = h("button", { class: "pbtn small purple", onclick: () => { const on = lullaby && !lullaby.paused; lullabyOn(!on); lull.textContent = on ? "🎵 Lullaby" : "🔇 Lullaby"; } }, "🎵 Lullaby");
+        const lull = h("button", { class: "pbtn small purple", onclick: () => { const on = lullaby && !lullaby.paused; lullabyOn(!on); setIb(lull, "music", on ? "Lullaby" : "Lullaby off", 20); } }, ib("music", "Lullaby", 20));
         body.append(tabs);
         const area = h("div", { style: { position: "absolute", inset: $("#stage").classList.contains("portrait") ? "120px 0 0" : 0 } }); body.append(area);
         function draw() {
-          tabs.innerHTML = ""; tabs.append(mk("all", "All 20"), mk("short", "🌟 Short"), mk("fairy", "🏰 Fairytales"), lull);
+          tabs.innerHTML = ""; tabs.append(mk("all", "All 20"), mk("short", "Short stories"), mk("fairy", "Fairytales"), lull);
           area.innerHTML = "";
           const list = STORIES.filter(s => filter === "all" || s.kind === filter);
           const cols = $("#stage").classList.contains("portrait") ? 2 : 4;
@@ -37,7 +37,7 @@
               h("div", { class: "tape " + (s.kind === "fairy" ? "pink" : "blue"), style: { top: "-8px", left: "50%", transform: "translateX(-50%) rotate(-3deg)" } }),
               h("div", { style: { position: "relative", background: "rgba(255,253,244,.94)", width: "100%", padding: "8px 10px", borderTop: "3px solid #2f2a3b" } },
                 h("div", { class: "t", style: { fontSize: "22px" } }, s.title),
-                h("div", { class: "s" }, (s.kind === "fairy" ? "Fairytale" : "Short story") + " · " + s.mins + " min" + (done ? " · ⭐" : ""))));
+                h("div", { class: "s" }, (s.kind === "fairy" ? "Fairytale" : "Short story") + " · " + s.mins + " min" + (done ? " · done" : ""))));
             return card;
           }, { cols });
         }
@@ -59,10 +59,10 @@
         const pic = h("div", { class: "pic" }, img);
         const words = h("div", { class: "words" });
         const pnum = h("div", { class: "hand", style: { fontSize: "28px", opacity: .8, marginBottom: "6px" } });
-        const playBtn = h("button", { class: "arrow", style: { width: "92px", height: "92px", fontSize: "40px", background: "#f7cf4a" } }, "⏸");
-        const prev = h("button", { class: "arrow" }, "◀"), next = h("button", { class: "arrow" }, "▶");
-        const again = h("button", { class: "arrow", title: "Read again" }, "🔁");
-        const autoBtn = h("button", { class: "pbtn small white" }, "📖 Auto: on");
+        const playBtn = h("button", { class: "arrow", style: { width: "92px", height: "92px", background: "#f7cf4a" }, "aria-label": "Play or pause" }, icon("pause", 44));
+        const prev = h("button", { class: "arrow", "aria-label": "Previous page" }, icon("left", 34)), next = h("button", { class: "arrow", "aria-label": "Next page" }, icon("right", 34));
+        const again = h("button", { class: "arrow", title: "Read again", "aria-label": "Read this page again" }, icon("again", 34));
+        const autoBtn = h("button", { class: "pbtn small white" }, ib("book", "Auto-turn", 20));
         const ctrl = h("div", { class: "book-ctrl" }, prev, again, playBtn, next, autoBtn);
         const txt = h("div", { class: "txt" }, pnum, words, ctrl);
         const book = h("div", { class: "book" }, pic, txt);
@@ -71,17 +71,25 @@
         // sleep timer + dim
         const dim = h("div", { class: "dim-layer" }); win.el.append(dim);
         const sleepOpts = [0, 10, 20, 30]; let sIdx = 0;
-        const sleepBtn = h("button", { class: "pbtn small purple", style: { marginLeft: "auto" } }, "😴 Sleep timer: off");
-        const lullBtn = h("button", { class: "pbtn small purple" }, lullaby && !lullaby.paused ? "🔇 Lullaby" : "🎵 Lullaby");
-        lullBtn.onclick = () => { const on = lullaby && !lullaby.paused; lullabyOn(!on); lullBtn.textContent = on ? "🎵 Lullaby" : "🔇 Lullaby"; };
+        const sleepBtn = h("button", { class: "pbtn small purple" }, ib("sleep", "Sleep: off", 20));
+        const lullBtn = h("button", { class: "pbtn small purple" }, ib("music", lullaby && !lullaby.paused ? "Lullaby off" : "Lullaby", 20));
+        lullBtn.onclick = () => { const on = lullaby && !lullaby.paused; lullabyOn(!on); setIb(lullBtn, "music", on ? "Lullaby" : "Lullaby off", 20); };
         sleepBtn.onclick = () => {
           sIdx = (sIdx + 1) % sleepOpts.length; const m = sleepOpts[sIdx];
-          sleepBtn.textContent = "😴 Sleep timer: " + (m ? m + " min" : "off"); clearTimeout(sleepTimer);
+          setIb(sleepBtn, "sleep", "Sleep: " + (m ? m + " min" : "off"), 20); clearTimeout(sleepTimer);
           if (m) sleepTimer = setTimeout(goSleep, m * 60000);
         };
         function goSleep() { stopAudio(); SFX.stopAmb(); dim.style.opacity = .92; dim.style.pointerEvents = "auto"; dim.onclick = () => { dim.style.opacity = 0; dim.style.pointerEvents = "none"; };
           if (lullaby) { const f = setInterval(() => { lullaby.volume = Math.max(0, lullaby.volume - 0.01); if (lullaby.volume <= 0.01) { clearInterval(f); lullaby.pause(); lullaby.volume = .22; } }, 300); } }
-        win.bar.append(lullBtn, sleepBtn);
+        const tgl = (key, on, off, after) => {
+          const b = h("button", { class: "pbtn small " + (APPSET[key] ? "white" : "purple") }, ib(...(APPSET[key] ? on : off), 20));
+          b.onclick = () => { APPSET[key] = !APPSET[key]; save(); setIb(b, ...(APPSET[key] ? on : off), 20); b.className = "pbtn small " + (APPSET[key] ? "white" : "purple"); after && after(APPSET[key]); };
+          return b;
+        };
+        const sfxBtn = tgl("sfx", ["bell", "Effects on"], ["belloff", "Effects off"]);
+        const ambBtn = tgl("amb", ["leaf", "Nature on"], ["leafoff", "Nature off"], on => on ? SFX.amb(s.amb) : SFX.stopAmb());
+        sfxBtn.style.marginLeft = "auto";
+        win.bar.append(sfxBtn, ambBtn, lullBtn, sleepBtn);
 
         function render() {
           clearTimeout(timer); stopAudio();
@@ -92,45 +100,55 @@
           const spans = layWords(words, p.t);
           prev.disabled = page === 0;
           const fired = new Set();
-          (p.fx || []).forEach(f => { if (typeof f === "string") setTimeout(() => SFX.play(f), 250); });
+          const starts = (p.fx || []).filter(f => typeof f === "string");
           const cues = (p.fx || []).filter(f => typeof f === "object");
           const clean = t => t.toLowerCase().replace(/[^a-z']/g, "");
           if (!playing) return;
-          narrate(`assets/audio/stories/${s.id}/${page + 1}.mp3`, spans, p.t, {
-            onWord(i) {
-              const w = clean(spans[i].textContent);
-              cues.forEach((c, k) => { if (!fired.has(k) && w.startsWith(clean(c.on))) { fired.add(k); SFX.play(c.s); } });
-            }
-          }).then(() => {
-            if (win.closed || !playing) return;
-            if (auto) timer = setTimeout(() => { page++; render(); }, 1400);
-          });
+          // 1) page-start effects play on their own, in full, before the narrator speaks
+          let lead = 0;
+          if (APPSET.sfx) starts.forEach(f => { lead = Math.max(lead, SFX.play(f, 0.15, { max: 2.2 })); });
+          const myPage = page;
+          timer = setTimeout(() => {
+            if (win.closed || !playing || page !== myPage) return;
+            SFX.duck(true);
+            // 2) effects inside a sentence stay soft and short so the voice stays clear
+            narrate(`assets/audio/stories/${s.id}/${page + 1}.mp3`, spans, p.t, {
+              onWord(i) {
+                const w = clean(spans[i].textContent);
+                cues.forEach((c, k) => { if (!fired.has(k) && w.startsWith(clean(c.on))) { fired.add(k); SFX.play(c.s, 0, { gain: 0.32, max: 1.3 }); } });
+              }
+            }).then(() => {
+              SFX.duck(false);
+              if (win.closed || !playing) return;
+              if (auto) timer = setTimeout(() => { page++; render(); }, 1600);
+            });
+          }, lead ? Math.min(lead, 2.2) * 1000 + 150 : 250);
         }
         function moralCard() {
           book.style.display = "none"; SFX.play("chime");
           const card = h("div", { class: "center" },
-            h("div", { style: { fontSize: "90px" } }, "🌙"),
+            pic("moon", 110),
             cutout("The End", 64),
             h("div", { class: "torn", style: { "--torn": tornPath(), padding: "26px 40px", maxWidth: "860px", transform: "rotate(-1deg)", color: "#2f2a3b", textAlign: "center" } },
               h("div", { class: "hand", style: { fontSize: "30px" } }, "The lesson:"),
               h("div", { class: "moral" }, s.moral)),
             h("div", { class: "hand", style: { fontSize: "30px", color: "#f6f1e3", maxWidth: "800px", textAlign: "center" } }, "Talk together: What was your favourite part? What would you have done?"),
             h("div", { style: { display: "flex", gap: "16px" } },
-              h("button", { class: "pbtn white", onclick: () => { card.remove(); book.style.display = ""; page = 0; playing = true; render(); } }, "🔁 Read again"),
-              h("button", { class: "pbtn purple", onclick: () => { lullabyOn(true); lullBtn.textContent = "🔇 Lullaby"; sayPrompt("goodnight"); } }, "🎵 Lullaby time"),
-              h("button", { class: "pbtn green", onclick: () => history.back() }, "✔ Done")));
+              h("button", { class: "pbtn white", onclick: () => { card.remove(); book.style.display = ""; page = 0; playing = true; render(); } }, ib("again", "Read again")),
+              h("button", { class: "pbtn purple", onclick: () => { lullabyOn(true); setIb(lullBtn, "music", "Lullaby off", 20); sayPrompt("goodnight"); } }, ib("moon", "Lullaby time")),
+              h("button", { class: "pbtn green", onclick: () => history.back() }, ib("check", "Done"))));
           body.append(card);
           if (!APP.done["story:" + s.id]) setTimeout(() => celebrate("story:" + s.id, { msg: "Story time!" }), 600);
         }
         playBtn.onclick = () => {
-          playing = !playing; playBtn.textContent = playing ? "⏸" : "▶";
+          playing = !playing; setIb(playBtn, playing ? "pause" : "play", "", 44);
           if (playing) render(); else { clearTimeout(timer); stopAudio(); }
         };
-        again.onclick = () => { playing = true; playBtn.textContent = "⏸"; render(); };
+        again.onclick = () => { playing = true; setIb(playBtn, "pause", "", 44); render(); };
         prev.onclick = () => { if (page > 0) { page--; render(); } };
         next.onclick = () => { page++; render(); };
-        autoBtn.onclick = () => { auto = !auto; autoBtn.textContent = "📖 Auto: " + (auto ? "on" : "off"); };
-        win.cleanup.push(() => { clearTimeout(timer); clearTimeout(sleepTimer); SFX.stopAmb(); });
+        autoBtn.onclick = () => { auto = !auto; setIb(autoBtn, "book", auto ? "Auto-turn" : "Turn by hand", 20); };
+        win.cleanup.push(() => { clearTimeout(timer); clearTimeout(sleepTimer); SFX.duck(false); SFX.stopAmb(); });
         setTimeout(render, 450);
       }
     });

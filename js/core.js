@@ -55,14 +55,14 @@
   window.APP = S; window.APPSET = S.settings;
   window.save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
-  const STICKERS = ["🦄", "🐳", "🦋", "🌈", "🚀", "🐢", "🦁", "🐪", "🦊", "🐙", "🌟", "🍉", "🦜", "🐬", "🌻", "🎈", "🧁", "🐝", "🦒", "🐼", "🍦", "🌙", "⛵", "🏰", "🐞", "🦩", "🌴", "🐠", "🎨", "🏆", "🐧", "🍓", "🐘", "🦔", "🌵", "🎉"];
+  const STICKERS = ["unicorn", "dolphin", "butterfly", "rainbow", "rocket", "owl", "lion", "camel", "fox", "octopus", "star", "watermelon", "sunflower", "balloon", "cupcake", "icecream", "palm", "trophy", "kangaroo", "zebra", "tiger", "rabbit", "pig", "cat", "dog", "fish", "kite", "apple", "queen", "dhow", "lantern", "sun", "moon", "hen", "goat", "bus"];
   window.STICKERS = STICKERS;
   window.award = function (key, stars = 1) {
     S.stars += stars; let newSticker = null;
     if (key && !S.done[key]) { S.done[key] = 1; newSticker = STICKERS[S.stickers.length % STICKERS.length]; S.stickers.push(newSticker); }
     save(); updateStarCount(); return newSticker;
   };
-  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => e.textContent = "⭐ " + S.stars + " · Stickers");
+  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => { e.innerHTML = ""; e.append(icon("star", 26), " " + S.stars + " · Stickers"); });
 
   /* ---------------- audio: clips, words, narration ---------------- */
   const AUD = "assets/audio/";
@@ -159,7 +159,16 @@
   const CUT_FONTS = [["Abril", 400], ["Bungee", 400], ["Special", 400], ["Fredoka", 700], ["Caveat", 700], ["Andika", 700]];
   const CUT_BG = ["#fff", "#f7cf4a", "#ef6f61", "#9ccbf0", "#7cc28a", "#f29bb8", "#2f2a3b", "#fbe3c0", "#c6b3ef", "#f6a04d"];
   let seed = 7; const srnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  // Clean, readable heading: one bold face on a white paper strip with a bit of tape.
+  const LABEL_TAPE = ["#f7cf4a", "#9ccbf0", "#f29bb8", "#a8dab5", "#c6b3ef"];
+  let labelN = 0;
   window.cutout = function (text, size) {
+    const fs = size || 34, el = h("div", { class: "label-title", style: { fontSize: fs + "px", transform: `rotate(${labelN % 2 ? 0.8 : -0.8}deg)` } }, text);
+    el.append(h("i", { class: "label-tape", style: { background: LABEL_TAPE[labelN++ % LABEL_TAPE.length] } }));
+    return el;
+  };
+  // The playful magazine cut-out letters, used only for the StoryBloom logo.
+  window.cutoutFancy = function (text, size) {
     const box = h("div", { class: "cutout" });
     text.split(" ").forEach((word, wi) => {
       const wb = h("div", { class: "cword" }); box.append(wb);
@@ -204,7 +213,7 @@
     SFX.play("open");
     const win = h("div", { class: "win grain" + (night ? " night" : "") });
     if (bg) win.style.background = bg;
-    const back = h("button", { class: "back-btn", "aria-label": "Back" }, "⬅");
+    const back = h("button", { class: "back-btn", "aria-label": "Back" }, icon("back", 34));
     const bar = h("div", { class: "win-bar" }, back, title ? cutout(title, 38) : null);
     const body = h("div", { class: "win-body" });
     win.append(bar, body);
@@ -237,10 +246,10 @@
     const colors = ["#ef6f61", "#f7cf4a", "#7cc28a", "#5b9bd5", "#f29bb8", "#9b7fd1"];
     for (let i = 0; i < 40; i++) c.append(h("i", { class: "confetti", style: { left: Math.random() * 100 + "%", background: rand(colors), animationDuration: 1.5 + Math.random() * 2 + "s", animationDelay: Math.random() * .6 + "s" } }));
     c.append(h("div", { class: "box" },
-      h("div", { class: "sticker" }, st || "⭐"),
+      h("div", { class: "sticker" }, pic(st || "star", 180)),
       cutout(msg, 56),
       h("div", { class: "hand", style: { fontSize: "34px", marginTop: "10px" } }, st ? "New sticker for your book!" : `+${stars} star${stars > 1 ? "s" : ""}`),
-      h("button", { class: "pbtn green", style: { marginTop: "26px" }, onclick: () => c.remove() }, "Yay! ➜")));
+      h("button", { class: "pbtn green", style: { marginTop: "26px" }, onclick: () => c.remove() }, "Yay!")));
     stage.append(c);
     sayPrompt(st ? "sticker" : rand(["great", "wow"]));
     return new Promise(r => c.querySelector(".pbtn").addEventListener("click", r));
@@ -252,7 +261,7 @@
     const rows = Math.ceil(Math.min(per, items.length) / cols);
     const grid = h("div", { class: "grid", style: { gridTemplateColumns: `repeat(${cols},1fr)`, gridTemplateRows: `repeat(${rows},1fr)`, alignContent: "stretch", gap: gap + "px", top: "6px", bottom: pages > 1 ? "100px" : "30px" } });
     const dots = h("div", { style: { display: "flex", gap: "10px" } });
-    const prev = h("button", { class: "arrow" }, "◀"), next = h("button", { class: "arrow" }, "▶");
+    const prev = h("button", { class: "arrow", "aria-label": "Previous page" }, icon("left", 34)), next = h("button", { class: "arrow", "aria-label": "Next page" }, icon("right", 34));
     const bar = h("div", { class: "pager" }, prev, dots, next);
     const draw = () => {
       grid.innerHTML = ""; items.slice(page * per, page * per + per).forEach((it, i) => grid.append(render(it, page * per + i)));

@@ -19,14 +19,21 @@ const { chromium } = require('playwright');
   for (const [file, expr] of Object.entries(packs)) {
     await p.evaluate(expr => { const root = document.getElementById('print-root'); root.innerHTML = eval(expr).join(''); }, expr);
     await p.evaluate(() => Promise.all([...document.querySelectorAll('#print-root img')].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))));
-    // shrink photos to print resolution JPEGs so the PDFs stay small
-    await p.evaluate(() => Promise.all([...document.querySelectorAll('#print-root img')].filter(i => !/\.png$/.test(i.getAttribute('src'))).map(i => {
-      const c = document.createElement('canvas'), w = Math.min(700, i.naturalWidth); c.width = w; c.height = Math.round(i.naturalHeight * w / i.naturalWidth);
-      c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); i.src = c.toDataURL('image/jpeg', 0.72);
-      return new Promise(r => { i.onload = r; });
+    // shrink every picture to a light-greyscale JPEG on white (small files, ink-friendly); colouring pages stay crisp line art
+    await p.evaluate(() => Promise.all([...document.querySelectorAll('#print-root img, #print-root image')].map(i => {
+      const src = i.getAttribute('src') || i.getAttribute('href'); if (/colour\//.test(src)) return 1;
+      return new Promise(res => { const im = new Image(); im.onload = () => {
+        const c = document.createElement('canvas'), w = Math.min(600, im.naturalWidth); c.width = w; c.height = Math.round(im.naturalHeight * w / im.naturalWidth);
+        const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+        x.filter = /story\/|reader\//.test(src) ? 'grayscale(1) brightness(1.55) contrast(0.5)' : 'grayscale(1) brightness(1.15) contrast(0.88)'; x.drawImage(im, 0, 0, c.width, c.height);
+        const url = c.toDataURL('image/jpeg', 0.7);
+        i.classList.remove('pic-ink'); i.classList.add('keep-ink');
+        if (i.tagName.toLowerCase() === 'image') { i.setAttribute('href', url); res(); } else { i.onload = res; i.src = url; }
+      }; im.onerror = res; im.src = src; });
     })));
     await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(300);
-    await p.pdf({ path: 'assets/print/' + file, format: 'A4', printBackground: true });
+    await p.evaluate(() => { document.documentElement.style.background = '#fff'; document.body.style.background = '#fff'; });
+    await p.pdf({ path: 'assets/print/' + file, format: 'A4', printBackground: false });
     console.log(file);
   }
   await b.close();

@@ -167,13 +167,27 @@
   }
 
   window.SFX = {
-    play(name, delay = 0) {
-      if (window.APPSET && !APPSET.sfx) return;
+    // opts.gain: volume (0-1); opts.max: cut the sound off (with a fade) after this many seconds
+    play(name, delay = 0, opts = {}) {
+      if (window.APPSET && !APPSET.sfx) return 0;
       const t = now() + delay;
-      if (BUF[name]) return playBuf(BUF[name], t);
+      if (BUF[name]) {
+        const { src, g } = playBuf(BUF[name], t, sfxBus, opts.gain == null ? 1 : opts.gain);
+        let d = BUF[name].duration;
+        if (opts.max && d > opts.max) { g.gain.setValueAtTime(g.gain.value, t + opts.max - 0.4); g.gain.linearRampToValueAtTime(0.0001, t + opts.max); src.stop(t + opts.max + 0.05); d = opts.max; }
+        return d;
+      }
       load(name).catch(() => {}); // warm it for next time
       if (FX[name]) try { FX[name](t); } catch (e) {}
+      return 0.8;
     },
+    // dip background sounds while someone is speaking
+    duck(on) {
+      if (!ctx) return;
+      const tgt = on ? vol.amb * 0.18 : vol.amb;
+      ambBus.gain.cancelScheduledValues(now()); ambBus.gain.setTargetAtTime(tgt, now(), on ? 0.15 : 0.6);
+    },
+    isLoaded: n => !!BUF[n],
     preload(names) { names.forEach(n => load(n).catch(() => {})); },
     amb(name) {
       stopAll();

@@ -31,11 +31,11 @@
         const fit = () => { const r = holder.getBoundingClientRect(), z = parseFloat($("#stage").style.transform.replace(/[^0-9.]/g, "")) || 1; const sc = Math.min((r.height / z - 10) / H, (r.width / z - 10) / W); paper.style.transform = `scale(${sc})`; };
         const pdfUrl = pdf ? `assets/print/${pdf.file}${pdf.page ? "#page=" + pdf.page : ""}` : null;
         const btns = h("div", { class: "preview-side" },
-          h("div", { style: { fontSize: "70px" } }, "🖨️"),
+          pic("printer", 110),
           h("div", { class: "t", style: { fontSize: "26px", fontWeight: 700 } }, sheets.length > 1 ? sheets.length + " pages ready" : "Your sheet is ready"),
           IN_FRAME ? h("div", { class: "hand", style: { fontSize: "24px" } }, "Printing is switched off on this preview page. Open the PDF, or use the app from its own web address.") : null,
-          h("button", { class: "pbtn green", onclick: () => doPrint(sheets) }, "🖨 Print now"),
-          pdfUrl ? h("a", { class: "pbtn blue", href: pdfUrl, target: "_blank", rel: "noopener", style: { textDecoration: "none", textAlign: "center" } }, "📄 Open PDF") : null,
+          h("button", { class: "pbtn green", onclick: () => doPrint(sheets) }, ib("print", "Print now")),
+          pdfUrl ? h("a", { class: "pbtn blue", href: pdfUrl, target: "_blank", rel: "noopener", style: { textDecoration: "none", textAlign: "center" } }, ib("pdf", "Open PDF")) : null,
           h("div", { class: "hand", style: { fontSize: "22px", color: "var(--ink-soft)" } }, "Tip: on iPad, open the PDF and tap Share → Print."));
         body.append(h("div", { class: "preview-wrap" }, holder, btns));
         requestAnimationFrame(fit);
@@ -53,7 +53,7 @@
   const head = (title, sub = "") => `<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #222;padding-bottom:3mm;margin-bottom:5mm">
     <div><div style="font-family:Fredoka;font-weight:700;font-size:26pt">${title}</div><div style="font-size:12pt;color:#555">${sub}</div></div>
     <div style="font-size:13pt;text-align:right">Name: ______________<br><br>Date: ______________</div></div>`;
-  const foot = `<div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-family:Caveat;font-size:14pt;color:#888">StoryBloom · ⭐ Great work! ⭐</div>`;
+  const foot = `<div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-family:Caveat;font-size:14pt;color:#888">StoryBloom · Great work!</div>`;
 
   // A row of handwriting guide lines with dashed trace text. width in mm.
   function traceRow(text, hMM = 30, { solidFirst = false, fade = false } = {}) {
@@ -76,10 +76,10 @@
       const L = LETTERS.find(x => x.l === l);
       return `<div class="sheet">${head("Letter " + l.toUpperCase() + l, "Say the sound, trace, then write it yourself!")}
         <div style="display:flex;align-items:center;gap:8mm;margin-bottom:4mm"><div style="font-family:Andika;font-weight:700;font-size:90pt;line-height:1">${l.toUpperCase()}${l}</div>
-        <div style="font-size:60pt">${L.pic}</div><div style="font-size:28pt"><b>${l}</b>${L.word.slice(1)}</div></div>
+        <div>${picHTML(L.pic, 34)}</div><div style="font-size:28pt"><b>${l}</b>${L.word.slice(1)}</div></div>
         ${traceRow((l.toUpperCase() + " ").repeat(7))}${traceRow((l.toUpperCase() + " ").repeat(7))}
         ${traceRow((l + " ").repeat(8))}${traceRow((l + " ").repeat(8))}${traceRow(L.word + "  " + L.word, 30, {})}${traceRow("")}${traceRow("")}
-        <div style="font-size:13pt;margin-top:2mm">✏️ Colour the picture and draw something else that starts with <b>${l}</b>:</div>
+        <div style="font-size:13pt;margin-top:2mm">Colour the picture and draw something else that starts with <b>${l}</b>:</div>
         <div style="border:2px dashed #aaa;border-radius:6mm;height:32mm;margin-top:2mm"></div>${foot}</div>`;
     },
     name(n) {
@@ -107,14 +107,14 @@
       return `<div class="sheet">${head("Sight Words · " + s.name, "Read it · Trace it · Write it · Find it!")}
         <table style="width:100%;border-collapse:collapse;font-size:20pt">${ws.slice(0, 6).map(w => `<tr><td style="width:24%;font-family:Andika;font-weight:700;font-size:24pt;padding:1mm 0">${w}</td><td style="width:38%">${traceRow((w + "  ").repeat(2), 16).replace("width:190mm", "width:70mm")}</td><td style="border-bottom:1px solid #999"></td></tr>`).join("")}</table>
         <div style="display:flex;gap:8mm;margin-top:5mm"><table style="border-collapse:collapse;font-family:Andika;font-size:20pt">${grid}</table>
-        <div style="font-size:15pt;line-height:1.7">🔍 Find these words:<br>${ws.filter(w => w.length > 1).map(w => "☐ " + w.toLowerCase()).join("<br>")}</div></div>
+        <div style="font-size:15pt;line-height:1.7">Find these words:<br>${ws.filter(w => w.length > 1).map(w => "☐ " + w.toLowerCase()).join("<br>")}</div></div>
         <style>.sheet td{text-align:center}.sheet table[style*="Andika"] td{width:11mm;height:11mm;border:1px solid #bbb}</style>${foot}</div>`;
     },
     cutmatch() {
       const ws = shuffle(CVC).slice(0, 6);
       return `<div class="sheet">${head("Cut & Match", "Cut out the words at the bottom. Glue each word under its picture.")}
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6mm">${ws.map(w => `<div style="border:2px solid #222;border-radius:5mm;height:58mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3mm"><div style="font-size:54pt">${w.pic}</div><div style="width:85%;height:16mm;border:2px dashed #aaa;border-radius:3mm"></div></div>`).join("")}</div>
-        <div style="margin-top:10mm;border-top:2px dashed #222;padding-top:2mm;font-size:12pt">✂ cut along the lines</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6mm">${ws.map(w => `<div style="border:2px solid #222;border-radius:5mm;height:58mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3mm"><div style="font-size:54pt">${picHTML(w.pic, 34)}</div><div style="width:85%;height:16mm;border:2px dashed #aaa;border-radius:3mm"></div></div>`).join("")}</div>
+        <div style="margin-top:10mm;border-top:2px dashed #222;padding-top:2mm;font-size:12pt">- - cut along the lines - -</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:3mm">${shuffle(ws).map(w => `<div style="border:1.5px dashed #222;height:20mm;display:grid;place-items:center;font-family:Andika;font-weight:700;font-size:28pt">${w.w}</div>`).join("")}</div>${foot}</div>`;
     },
     family(f) {
@@ -122,7 +122,7 @@
       return `<div class="sheet">${head("Word Family: -" + f, "Read each word in the house. Then make your own!")}
         <svg viewBox="0 0 190 120" style="width:190mm;height:120mm"><polygon points="20,50 95,5 170,50" fill="none" stroke="#222" stroke-width="1.2"/><rect x="30" y="50" width="130" height="68" fill="none" stroke="#222" stroke-width="1.2"/>
         <text x="95" y="40" text-anchor="middle" font-family="Andika" font-weight="700" font-size="20">-${f}</text>
-        ${ws.map((w, i) => `<text x="${i % 2 ? 125 : 65}" y="${68 + Math.floor(i / 2) * 18}" text-anchor="middle" font-family="Andika" font-size="13">${PIC[w] || ""} ${w}</text>`).join("")}</svg>
+        ${ws.map((w, i) => { const x = i % 2 ? 125 : 65, y = 68 + Math.floor(i / 2) * 18; return (PIC[w] ? `<image class="pic-ink" href="assets/img/stickers/${PIC[w]}.webp" x="${x - 26}" y="${y - 12}" width="14" height="14"/>` : "") + `<text x="${x + 4}" y="${y}" text-anchor="middle" font-family="Andika" font-size="13">${w}</text>`; }).join("")}</svg>
         <div style="font-size:15pt;margin:3mm 0">Add a letter to make a new word:</div>
         ${[0, 1, 2, 3].map(() => `<div style="display:flex;align-items:center;gap:4mm;margin:3mm 0;font-family:Andika;font-size:30pt"><div style="width:16mm;height:18mm;border:2px solid #222;border-radius:3mm"></div><b>${f}</b><span style="font-size:14pt;color:#666;margin-left:8mm">Draw it →</span><div style="flex:1;height:18mm;border-bottom:1px solid #aaa"></div></div>`).join("")}${foot}</div>`;
     },
@@ -130,14 +130,14 @@
       const letters = shuffle([...new Set(CVC.map(c => c.w[0]))]).slice(0, 6);
       const rows = letters.map(l => { const t = rand(CVC.filter(c => c.w[0] === l)); const o = shuffle(CVC.filter(c => c.w[0] !== l)).slice(0, 2); return { l, opts: shuffle([t, ...o]) }; });
       return `<div class="sheet">${head("Beginning Sounds", "Say the letter sound. Circle the picture that starts with it.")}
-        ${rows.map(r => `<div style="display:flex;align-items:center;gap:10mm;border-bottom:1px solid #ccc;padding:3mm 0"><div style="font-family:Andika;font-weight:700;font-size:44pt;width:22mm;text-align:center">${r.l}</div>${r.opts.map(o => `<div style="font-size:46pt;width:35mm;text-align:center">${o.pic}</div>`).join("")}</div>`).join("")}${foot}</div>`;
+        ${rows.map(r => `<div style="display:flex;align-items:center;gap:10mm;border-bottom:1px solid #ccc;padding:3mm 0"><div style="font-family:Andika;font-weight:700;font-size:44pt;width:22mm;text-align:center">${r.l}</div>${r.opts.map(o => `<div style="font-size:46pt;width:35mm;text-align:center">${picHTML(o.pic, 30)}</div>`).join("")}</div>`).join("")}${foot}</div>`;
     },
     sequence(id) {
       const s = STORIES.find(x => x.id === id);
       return `<div class="sheet">${head("Story Order: " + s.title, "Draw the beginning, middle and end. Then tell the story!")}
         <div style="display:flex;gap:4mm;margin-bottom:4mm"><img src="assets/img/story/${s.id}-0.webp" style="width:93mm;height:62mm;object-fit:cover;border:2px solid #222"><img src="assets/img/story/${s.id}-1.webp" style="width:93mm;height:62mm;object-fit:cover;border:2px solid #222"></div>
         ${["1. Beginning", "2. Middle", "3. End"].map(t => `<div style="display:flex;gap:4mm;margin-bottom:4mm"><div style="width:80mm;height:44mm;border:2px solid #222;border-radius:3mm;padding:2mm;font-size:12pt">${t}</div><div style="flex:1">${traceRow("", 14).replace("width:190mm", "width:100mm")}${traceRow("", 14).replace("width:190mm", "width:100mm")}</div></div>`).join("")}
-        <div style="font-size:14pt;border:2px dashed #888;border-radius:4mm;padding:3mm">💬 The lesson: <i>${s.moral}</i><br>What would you do? ________________________________</div>${foot}</div>`;
+        <div style="font-size:14pt;border:2px dashed #888;border-radius:4mm;padding:3mm">The lesson: <i>${s.moral}</i><br>What would you do? ________________________________</div>${foot}</div>`;
     },
     reader(id) {
       const b = READERS.find(x => x.id === id);
@@ -146,7 +146,7 @@
         <div style="font-family:Andika;font-size:20pt;line-height:1.6">${b.pages.join("<br>")}</div></div>
         ${b.qs.map((q, i) => `<div style="margin-top:7mm;font-family:Andika;font-size:18pt"><b>${i + 1}. ${q.q}</b><br>${q.opts.map(o => "◯ " + o).join("&nbsp;&nbsp;&nbsp; ")}</div>`).join("")}
         <div style="margin-top:7mm;font-size:16pt">Draw your favourite part:</div><div style="border:2px dashed #aaa;border-radius:5mm;height:60mm;margin-top:2mm"></div>
-        <div style="margin-top:4mm;font-size:16pt">I read this book to: ______________ &nbsp; ⭐ ⭐ ⭐</div>${foot}</div>`;
+        <div style="margin-top:4mm;font-size:16pt">I read this book to: ______________ &nbsp; ☆ ☆ ☆</div>${foot}</div>`;
     },
     chart() {
       const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -171,24 +171,24 @@
       build(body) {
         body.append(h("div", { class: "hand hint" }, "Open, save or print complete sets"));
         pager(body, PDF_PACKS, 9, p => h("a", { class: "pick", href: "assets/print/" + p.file, target: "_blank", rel: "noopener", style: { textDecoration: "none", color: "inherit" } },
-          h("div", { class: "big-emo" }, "📄"), h("div", { class: "t", style: { fontSize: "22px" } }, p.t), h("div", { class: "s" }, p.n + (p.n > 1 ? " pages" : " page") + " · PDF")), { cols: $("#stage").classList.contains("portrait") ? 3 : 3 });
+          pic("paper", 90), h("div", { class: "t", style: { fontSize: "22px" } }, p.t), h("div", { class: "s" }, p.n + (p.n > 1 ? " pages" : " page") + " · PDF")), { cols: $("#stage").classList.contains("portrait") ? 3 : 3 });
       }
     });
   }
 
   /* ---------- UI ---------- */
   const ITEMS = [
-    { k: "letter", emo: "🔤", t: "Letter Tracing", s: "A–Z, pick a letter", pick: () => chooser("Pick a letter", LETTERS.map(L => ({ label: L.l.toUpperCase() + L.l, sub: L.pic, v: L.l })), v => printSheets([MAKERS.letter(v)], { file: "letters-a-z.pdf", page: LETTERS.findIndex(L => L.l === v) + 1 }), 7) },
-    { k: "name", emo: "🧒", t: "Name Tracing", s: "Type a name", pick: nameDialog },
-    { k: "sight", emo: "👀", t: "Sight Words", s: "Read, trace, find", pick: () => chooser("Pick a word set", SIGHT.map((s, i) => ({ label: s.name, sub: s.words.slice(0, 4).join(" "), v: i })), v => printSheets([MAKERS.sight(v)], { file: "sight-words.pdf", page: v + 1 }), 4) },
-    { k: "cut", emo: "✂️", t: "Cut & Match", s: "Pictures + words", pick: () => printSheets([MAKERS.cutmatch()], { file: "phonics-practice.pdf", page: 1 }) },
-    { k: "family", emo: "🏠", t: "Word Families", s: "-at, -ug, -en…", pick: () => chooser("Pick a word family", Object.keys(FAMILIES).map(f => ({ label: "-" + f, sub: FAMILIES[f].slice(0, 3).join(" "), v: f })), v => printSheets([MAKERS.family(v)], { file: "word-families.pdf", page: Object.keys(FAMILIES).indexOf(v) + 1 }), 5) },
-    { k: "begin", emo: "👂", t: "Beginning Sounds", s: "Circle the picture", pick: () => printSheets([MAKERS.begin()], { file: "phonics-practice.pdf", page: 4 }) },
-    { k: "seq", emo: "📚", t: "Story Order", s: "For any story", pick: () => chooser("Pick a story", STORIES.map(s => ({ label: s.title, img: `assets/img/story/${s.id}-0.webp`, v: s.id })), v => printSheets([MAKERS.sequence(v)], { file: "story-order.pdf", page: STORIES.findIndex(s => s.id === v) + 1 }), 5) },
-    { k: "reader", emo: "📖", t: "Reader Questions", s: "6 little readers", pick: () => chooser("Pick a book", READERS.map(b => ({ label: b.title, sub: "Level " + b.level, img: `assets/img/reader/${b.id}.webp`, v: b.id })), v => printSheets([MAKERS.reader(v)], { file: "reader-questions.pdf", page: READERS.findIndex(b => b.id === v) + 1 }), 3) },
-    { k: "chart", emo: "⭐", t: "Reading Chart", s: "Monthly star chart", pick: () => printSheets([MAKERS.chart()], { file: "reading-chart.pdf" }) },
-    { k: "colour", emo: "🖍️", t: "Colouring Pages", s: "Print or colour here", pick: openColouringGallery },
-    { k: "pdfs", emo: "📄", t: "PDF Packs", s: "Download all sheets", pick: openPdfPacks }
+    { k: "letter", emo: "blocks", t: "Letter Tracing", s: "A–Z, pick a letter", pick: () => chooser("Pick a letter", LETTERS.map(L => ({ label: L.l.toUpperCase() + L.l, subPic: L.pic, v: L.l })), v => printSheets([MAKERS.letter(v)], { file: "letters-a-z.pdf", page: LETTERS.findIndex(L => L.l === v) + 1 }), 7) },
+    { k: "name", emo: "child", t: "Name Tracing", s: "Type a name", pick: nameDialog },
+    { k: "sight", emo: "magnifier", t: "Sight Words", s: "Read, trace, find", pick: () => chooser("Pick a word set", SIGHT.map((s, i) => ({ label: s.name, sub: s.words.slice(0, 4).join(" "), v: i })), v => printSheets([MAKERS.sight(v)], { file: "sight-words.pdf", page: v + 1 }), 4) },
+    { k: "cut", emo: "scissors", t: "Cut & Match", s: "Pictures + words", pick: () => printSheets([MAKERS.cutmatch()], { file: "phonics-practice.pdf", page: 1 }) },
+    { k: "family", emo: "house", t: "Word Families", s: "-at, -ug, -en…", pick: () => chooser("Pick a word family", Object.keys(FAMILIES).map(f => ({ label: "-" + f, sub: FAMILIES[f].slice(0, 3).join(" "), v: f })), v => printSheets([MAKERS.family(v)], { file: "word-families.pdf", page: Object.keys(FAMILIES).indexOf(v) + 1 }), 5) },
+    { k: "begin", emo: "ear", t: "Beginning Sounds", s: "Circle the picture", pick: () => printSheets([MAKERS.begin()], { file: "phonics-practice.pdf", page: 4 }) },
+    { k: "seq", emo: "book", t: "Story Order", s: "For any story", pick: () => chooser("Pick a story", STORIES.map(s => ({ label: s.title, img: `assets/img/story/${s.id}-0.webp`, v: s.id })), v => printSheets([MAKERS.sequence(v)], { file: "story-order.pdf", page: STORIES.findIndex(s => s.id === v) + 1 }), 5) },
+    { k: "reader", emo: "minibook", t: "Reader Questions", s: "6 little readers", pick: () => chooser("Pick a book", READERS.map(b => ({ label: b.title, sub: "Level " + b.level, img: `assets/img/reader/${b.id}.webp`, v: b.id })), v => printSheets([MAKERS.reader(v)], { file: "reader-questions.pdf", page: READERS.findIndex(b => b.id === v) + 1 }), 3) },
+    { k: "chart", emo: "trophy", t: "Reading Chart", s: "Monthly star chart", pick: () => printSheets([MAKERS.chart()], { file: "reading-chart.pdf" }) },
+    { k: "colour", emo: "crayons", t: "Colouring Pages", s: "Print or colour here", pick: openColouringGallery },
+    { k: "pdfs", emo: "paper", t: "PDF Packs", s: "Download all sheets", pick: openPdfPacks }
   ];
 
   window.openPrintShop = function () {
@@ -196,10 +196,10 @@
       title: "Print Shop",
       build(body, win) {
         blobs(win.el, ["#9ccbf0", "#f7cf4a", "#f29bb8"], 5);
-        body.append(h("div", { class: "hand hint" }, "Tap a sheet → it opens the print window 🖨️"));
+        body.append(h("div", { class: "hand hint" }, "Tap a sheet to preview and print it"));
         const cols = $("#stage").classList.contains("portrait") ? 3 : 5;
         pager(body, ITEMS, cols * 2, (it, i) => h("button", { class: "pick", style: { transform: `rotate(${(i % 2 ? 1 : -1) * (.5 + (i % 3) * .4)}deg)`, background: ["#fff", "#fffaf0", "#f5fbff"][i % 3] }, onclick: () => { SFX.play("tap"); it.pick(); } },
-          h("div", { class: "big-emo" }, it.emo), h("div", { class: "t" }, it.t), h("div", { class: "s" }, it.s)), { cols });
+          h("div", { class: "big-emo" }, pic(it.emo, 96)), h("div", { class: "t" }, it.t), h("div", { class: "s" }, it.s)), { cols });
       }
     });
   };
@@ -213,7 +213,7 @@
         pager(body, opts, c * (opts[0].img ? 2 : 4), o => h("button", { class: "pick", style: { padding: o.img ? 0 : "10px", justifyContent: o.img ? "flex-end" : "center" }, onclick: () => onPick(o.v) },
           o.img ? h("img", { src: o.img, style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" } }) : null,
           h("div", { class: "t", style: o.img ? { position: "relative", background: "rgba(255,253,244,.95)", width: "100%", padding: "6px", fontSize: "20px", borderTop: "3px solid #2f2a3b" } : { fontSize: "34px" } }, o.label),
-          o.sub && !o.img ? h("div", { class: "s", style: { fontSize: "26px" } }, o.sub) : null), { cols: c });
+          o.subPic ? pic(o.subPic, 46) : o.sub && !o.img ? h("div", { class: "s", style: { fontSize: "26px" } }, o.sub) : null), { cols: c });
       }
     });
   }
@@ -224,8 +224,8 @@
       build(body) {
         const inp = h("input", { class: "name-in", value: APP.name || "", maxlength: 12, placeholder: "Type a name…" });
         inp.addEventListener("pointerdown", e => e.stopPropagation());
-        body.append(h("div", { class: "center" }, h("div", { style: { fontSize: "90px" } }, "🧒"), h("div", { class: "hand", style: { fontSize: "38px" } }, "Whose name shall we practise?"), inp,
-          h("button", { class: "pbtn green", onclick: () => { const n = inp.value.trim(); if (!n) return toast("Type a name first"); APP.name = n; save(); printSheets([MAKERS.name(n)]); } }, "🖨 Print it")));
+        body.append(h("div", { class: "center" }, pic("child", 120), h("div", { class: "hand", style: { fontSize: "38px" } }, "Whose name shall we practise?"), inp,
+          h("button", { class: "pbtn green", onclick: () => { const n = inp.value.trim(); if (!n) return toast("Type a name first"); APP.name = n; save(); printSheets([MAKERS.name(n)]); } }, ib("print", "Print it"))));
         setTimeout(() => inp.focus(), 400);
       }
     });
@@ -241,8 +241,8 @@
           h("img", { src: `assets/img/colour/${c.id}.png`, style: { height: "190px", objectFit: "contain" } }),
           h("div", { class: "t", style: { fontSize: "20px" } }, c.t),
           h("div", { style: { display: "flex", gap: "8px" } },
-            h("button", { class: "pbtn small green", onclick: () => openColouring(c) }, "🖍 Colour"),
-            h("button", { class: "pbtn small white", onclick: () => printSheets([MAKERS.colour(c.id)], { file: "colouring.pdf", page: COLOURING.indexOf(c) + 1 }) }, "🖨"))), { cols });
+            h("button", { class: "pbtn small green", onclick: () => openColouring(c) }, ib("pencil", "Colour", 20)),
+            h("button", { class: "pbtn small white", onclick: () => printSheets([MAKERS.colour(c.id)], { file: "colouring.pdf", page: COLOURING.indexOf(c) + 1 }), "aria-label": "Print" }, icon("print", 22)))), { cols });
       }
     });
   }
@@ -259,9 +259,9 @@
         const undoStack = [];
         const tools = h("div", { style: { gridColumn: "1 / 3", display: "flex", gap: "10px", justifyContent: "center" } });
         body.append(h("div", { class: "colour-wrap" }, cv, h("div", { style: { display: "flex", flexDirection: "column", gap: "14px", justifyContent: "center" } }, pal,
-          h("button", { class: "pbtn small white", onclick: () => { if (undoStack.length) ctx.putImageData(undoStack.pop(), 0, 0); } }, "↩ Undo"),
-          h("button", { class: "pbtn small white", onclick: () => { const a = h("a", { href: cv.toDataURL("image/png"), download: c.id + "-coloured.png" }); a.click(); } }, "💾 Save"),
-          h("button", { class: "pbtn small green", onclick: () => celebrate("colour:" + c.id, { msg: "Beautiful!" }) }, "🎉 Done"))));
+          h("button", { class: "pbtn small white", onclick: () => { if (undoStack.length) ctx.putImageData(undoStack.pop(), 0, 0); } }, ib("undo", "Undo", 20)),
+          h("button", { class: "pbtn small white", onclick: () => { const a = h("a", { href: cv.toDataURL("image/png"), download: c.id + "-coloured.png" }); a.click(); } }, ib("save", "Save", 20)),
+          h("button", { class: "pbtn small green", onclick: () => celebrate("colour:" + c.id, { msg: "Beautiful!" }) }, ib("check", "Done", 20)))));
         const img = new Image();
         img.onload = () => { cv.width = img.width; cv.height = img.height; ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0); };
         img.src = `assets/img/colour/${c.id}.png`;

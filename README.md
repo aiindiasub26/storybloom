@@ -19,10 +19,10 @@ To try it on a computer: `python3 -m http.server` inside this folder, then open 
 | Section | Contents |
 |---|---|
 | 📖 Learn to Read (5-step course) | ABC Sounds, Trace Letters, First Sounds, Sound Blender, Rhyme Time, Sight Word Pop (40 words, 4 sets), Picture Match, Build-a-Word, Little Readers (6 leveled books × 3 reading modes + comprehension questions + record-yourself) |
-| 🌙 Bedtime Stories | 20 illustrated, fully narrated stories (9 short originals incl. 4 set in the UAE, 11 classic fairytales/fables), word-by-word highlighting, timed sound effects, nature ambience, lullaby, sleep timer, moral + talk-about-it card |
+| 🌙 Bedtime Stories | 20 illustrated, fully narrated stories (sound effects and nature sounds can each be switched off from the story's top bar) (9 short originals incl. 4 set in the UAE, 11 classic fairytales/fables), word-by-word highlighting, timed sound effects, nature ambience, lullaby, sleep timer, moral + talk-about-it card |
 | ✂️ Make Together | 16 parent-and-child activities designed for apartment life in Dubai (indoor, balcony, lift & lobby, supermarket, beach/desert outings in cooler months) with printable cards |
 | 🖨️ Print Shop | Print preview for every sheet, 9 ready-made PDF packs (assets/print/), letter tracing A–Z, name tracing, sight-word sheets with word search, cut & match, word families, beginning sounds, story sequencing (any story), reader comprehension, reading chart, 8 colouring pages (also colour on screen) |
-| 🎵 Sing Along | 10 songs with read-along lyrics: 6 originals (Jungle Groove, The Letter Sound Train, Sight Word Shake, Camel Shuffle, Swim With Me, Rainbow Colours, Brush Bath Book Bed) and classic nursery songs (Old MacDonald, The Wheels on the Bus, Twinkle Twinkle), plus Dance mode |
+| 🎵 Sing Along | 20 songs with read-along lyrics: upbeat kids-pop/funk dance songs (Jungle Groove, Camel Shuffle, Swim With Me, Head Shoulders Knees and Toes, If You're Happy and You Know It), learning songs (The Letter Sound Train, Sight Word Shake, Rainbow Colours), 10 classic nursery rhymes, and 2 bedtime songs. Dance mode included |
 | ⭐ Sticker Book | Stars and 36 collectible stickers (tap the star counter on the home screen) |
 | ⚙️ Grown-ups (hold to open) | Sound settings, child's name, progress report, suggested path by age, reset |
 
@@ -34,3 +34,6 @@ To try it on a computer: `python3 -m http.server` inside this folder, then open 
 - After changing any files, run `python3 build-sw.py` so the offline cache updates.
 - After changing worksheets, rebuild the PDF packs: serve the folder on port 8765 and run `node build-pdfs.js` (needs Playwright).
 - GitHub Pages: pushing to `main` deploys automatically via `.github/workflows/pages.yml`.
+
+- Pictures and icons are custom illustrated stickers (assets/img/stickers) and hand-drawn SVG icons (js/icons.js); no emoji.
+- PDF packs print on plain white paper with light greyscale pictures to save ink.

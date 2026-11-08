@@ -5,14 +5,14 @@
 
   /* ---------- hub ---------- */
   const GAMES = [
-    { step: 1, id: "abc", title: "ABC Sounds", sub: "Tap & hear letters", emo: "🔤", age: "3+", fn: () => openABC(false) },
-    { step: 1, id: "trace", title: "Trace Letters", sub: "Write with a finger", emo: "✏️", age: "3+", fn: () => openABC(true) },
-    { step: 1, id: "first", title: "First Sounds", sub: "What does it start with?", emo: "👂", age: "3+", fn: openFirstSounds },
-    { step: 2, id: "blend", title: "Sound Blender", sub: "c-a-t … cat!", emo: "🌀", age: "4+", fn: openBlender },
-    { step: 2, id: "rhyme", title: "Rhyme Time", sub: "cat · hat · bat", emo: "🎵", age: "4+", fn: openRhyme },
-    { step: 3, id: "sight", title: "Sight Word Pop", sub: "Pop the word you hear", emo: "🫧", age: "4+", fn: openSightPop },
-    { step: 4, id: "match", title: "Picture Match", sub: "Read & match", emo: "🖼️", age: "5+", fn: openMatch },
-    { step: 4, id: "build", title: "Build-a-Word", sub: "Spell it!", emo: "🧩", age: "5+", fn: openBuild }
+    { step: 1, id: "abc", title: "ABC Sounds", sub: "Tap & hear letters", emo: "blocks", age: "3+", fn: () => openABC(false) },
+    { step: 1, id: "trace", title: "Trace Letters", sub: "Write with a finger", emo: "pencil", age: "3+", fn: () => openABC(true) },
+    { step: 1, id: "first", title: "First Sounds", sub: "What does it start with?", emo: "ear", age: "3+", fn: openFirstSounds },
+    { step: 2, id: "blend", title: "Sound Blender", sub: "c-a-t … cat!", emo: "top", age: "4+", fn: openBlender },
+    { step: 2, id: "rhyme", title: "Rhyme Time", sub: "cat · hat · bat", emo: "notes", age: "4+", fn: openRhyme },
+    { step: 3, id: "sight", title: "Sight Word Pop", sub: "Pop the word you hear", emo: "bubbles", age: "4+", fn: openSightPop },
+    { step: 4, id: "match", title: "Picture Match", sub: "Read & match", emo: "frame", age: "5+", fn: openMatch },
+    { step: 4, id: "build", title: "Build-a-Word", sub: "Spell it!", emo: "puzzle", age: "5+", fn: openBuild }
   ];
 
   window.openLearn = function () {
@@ -33,8 +33,8 @@
           const n = Object.keys(APP.done).filter(k => k.startsWith("game:" + g.id)).length;
           grid.append(h("button", { class: "pick", style: { transform: `rotate(${(i % 2 ? 1 : -1) * (0.6 + Math.random())}deg)`, background: i % 3 === 0 ? "#fffaf0" : "#fff" }, onclick: g.fn },
             h("div", { style: { position: "absolute", top: "8px", left: "10px", fontWeight: 700, fontSize: "16px", background: COLORS[g.step * 2 - 2], color: "#fff", padding: "2px 10px", borderRadius: "20px", border: "2px solid #2f2a3b" } }, "STEP " + g.step),
-            n ? h("div", { class: "stars" }, "⭐".repeat(Math.min(3, n))) : null,
-            h("div", { class: "big-emo" }, g.emo), h("div", { class: "t" }, g.title), h("div", { class: "s" }, g.sub)));
+            n ? h("div", { class: "stars" }, starRow(Math.min(3, n))) : null,
+            h("div", { class: "big-emo" }, pic(g.emo, 96)), h("div", { class: "t" }, g.title), h("div", { class: "s" }, g.sub)));
         });
         wrap.append(big, grid); body.append(wrap);
       }
@@ -48,7 +48,7 @@
       build(body, win) {
         blobs(win.el, ["#f7cf4a", "#9ccbf0", "#f29bb8"], 4);
         const prog = h("div", { class: "prog" }); win.bar.append(h("div", { style: { flex: 1 } }), prog);
-        for (let i = 0; i < rounds; i++) prog.append(h("i", {}, "⭐"));
+        for (let i = 0; i < rounds; i++) prog.append(h("i", {}, icon("star", 30)));
         const stage = h("div", { class: "center" }); body.append(stage);
         let r = 0, misses = 0;
         const next = async (ok = true) => {
@@ -65,7 +65,7 @@
     const b = h("button", { class: "pick choice " + (cls || "") }, content);
     b.onclick = () => onPick(b); return b;
   }
-  const speaker = (fn) => h("button", { class: "speaker", onclick: fn }, "🔊");
+  const speaker = (fn) => h("button", { class: "speaker", "aria-label": "Listen again", onclick: fn }, icon("speaker", 58));
 
   /* ---------- ABC wall + letter card with tracing ---------- */
   function openABC(traceMode) {
@@ -79,7 +79,7 @@
           grid.append(h("button", { class: "pick", style: { background: COLORS[i % COLORS.length], transform: `rotate(${(Math.random() * 6 - 3).toFixed(1)}deg)`, padding: "6px" },
             onclick: () => { SFX.play("tap"); openLetter(i, traceMode); } },
             h("div", { class: "read", style: { fontSize: "56px", fontWeight: 700, lineHeight: 1, color: "#2f2a3b" } }, L.l.toUpperCase() + L.l),
-            h("div", { style: { fontSize: "30px" } }, L.pic), done ? h("div", { class: "stars" }, "⭐") : null));
+            pic(L.pic, 40), done ? h("div", { class: "stars" }, starRow(1)) : null));
         });
         body.append(grid);
       }
@@ -95,20 +95,20 @@
         const portrait = $("#stage").classList.contains("portrait");
         const left = h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" } },
           h("div", { class: "letter-big", style: { color: COLORS[i % COLORS.length], textShadow: "5px 5px 0 #2f2a3b" } }, L.l.toUpperCase() + L.l),
-          h("div", { style: { fontSize: "110px" } }, L.pic),
+          pic(L.pic, 130),
           h("div", { class: "read", style: { fontSize: "54px" } }, h("b", { style: { color: COLORS[i % COLORS.length] } }, L.word[0]), L.word.slice(1)),
           h("div", { style: { display: "flex", gap: "14px" } },
-            h("button", { class: "pbtn", onclick: () => sayLetter(L.l) }, "🔊 Hear it"),
-            h("button", { class: "pbtn blue", onclick: () => saySound(L.l) }, "👄 Sound")));
+            h("button", { class: "pbtn", onclick: () => sayLetter(L.l) }, ib("speaker", "Hear it")),
+            h("button", { class: "pbtn blue", onclick: () => saySound(L.l) }, ib("ear", "Sound"))));
         const tr = tracer(L.l, () => { celebrate("letter:" + L.l, { msg: "Beautiful!" }); });
         const caseBtn = h("button", { class: "pbtn small white" }, "Try: " + L.l.toUpperCase());
         let upper = false; caseBtn.onclick = () => { upper = !upper; tr.set(upper ? L.l.toUpperCase() : L.l); caseBtn.textContent = "Try: " + (upper ? L.l : L.l.toUpperCase()); };
         const right = h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" } },
           h("div", { class: "hand", style: { fontSize: "34px" } }, "Trace it with your finger!"), tr.el,
-          h("div", { style: { display: "flex", gap: "12px" } }, h("button", { class: "pbtn small white", onclick: () => tr.clear() }, "🧽 Clear"), caseBtn));
+          h("div", { style: { display: "flex", gap: "12px" } }, h("button", { class: "pbtn small white", onclick: () => tr.clear() }, ib("eraser", "Clear", 22)), caseBtn));
         const nav = h("div", { class: "pager" },
-          h("button", { class: "arrow", disabled: i === 0, onclick: () => { win.close(); openLetter(i - 1, traceFirst); } }, "◀"),
-          h("button", { class: "arrow", disabled: i === 25, onclick: () => { win.close(); openLetter(i + 1, traceFirst); } }, "▶"));
+          h("button", { class: "arrow", disabled: i === 0, onclick: () => { win.close(); openLetter(i - 1, traceFirst); } }, icon("left", 34)),
+          h("button", { class: "arrow", disabled: i === 25, onclick: () => { win.close(); openLetter(i + 1, traceFirst); } }, icon("right", 34)));
         body.append(h("div", { style: { position: "absolute", inset: "0 30px 100px", display: "grid", gridTemplateColumns: portrait ? "1fr" : "1fr 1fr", alignItems: "center", justifyItems: "center" } }, left, right), nav);
         setTimeout(() => traceFirst ? sayPrompt("trace") : sayLetter(L.l), 400);
       }
@@ -166,7 +166,7 @@
         st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Which picture starts with…"),
           h("div", { style: { display: "flex", alignItems: "center", gap: "30px" } }, h("div", { class: "letter-big", style: { fontSize: "170px" } }, l), speaker(play)));
         const row = h("div", { class: "choice-row" });
-        shuffle([target, ...others]).forEach(c => row.append(choiceBtn(c.pic, "emo", async b => {
+        shuffle([target, ...others]).forEach(c => row.append(choiceBtn(pic(c.pic, 130), "emo", async b => {
           if (c === target) { b.classList.add("right"); SFX.play("right"); await sayWord(c.w); next(); }
           else { b.classList.add("wrong"); SFX.play("wrong"); miss(); sayWord(c.w); setTimeout(() => b.classList.remove("wrong"), 500); }
         })));
@@ -183,9 +183,9 @@
       title: "Sound Blender", key: "blend", rounds: 6,
       round(st, next, miss, r) {
         const w = words[r]; const tapped = new Set();
-        const pic = h("div", { style: { fontSize: "150px", height: "170px", opacity: 0, transition: "opacity .4s" } }, w.pic);
+        const picEl = h("div", { style: { height: "170px", opacity: 0, transition: "opacity .4s" } }, pic(w.pic, 170));
         const tiles = h("div", { style: { display: "flex", gap: "22px" } });
-        const blend = h("button", { class: "pbtn green", disabled: true, style: { fontSize: "34px" } }, "🌀 Blend it!");
+        const blend = h("button", { class: "pbtn green", disabled: true, style: { fontSize: "34px" } }, ib("blend", "Blend it!", 30));
         [...w.w].forEach((ch, i) => {
           const t = h("button", { class: "tile-l", style: { background: ["#fde2e0", "#fff3c4", "#d7efe0"][i] } }, ch);
           t.onclick = async () => { SFX.play("tap"); t.classList.add("lit"); tapped.add(i); await saySound(ch); t.classList.remove("lit"); if (tapped.size === 3) blend.disabled = false; };
@@ -194,9 +194,9 @@
         blend.onclick = async () => {
           blend.disabled = true;
           for (const t of tiles.children) { t.classList.add("lit"); await saySound(t.textContent); t.classList.remove("lit"); }
-          await wait(150); tiles.style.gap = "2px"; pic.style.opacity = 1; SFX.play("magic"); await sayWord(w.w); next();
+          await wait(150); tiles.style.gap = "2px"; picEl.style.opacity = 1; SFX.play("magic"); await sayWord(w.w); next();
         };
-        st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Tap each sound, then blend!"), pic, tiles, blend);
+        st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Tap each sound, then blend!"), picEl, tiles, blend);
         if (r === 0) sayPrompt("blend");
       }
     });
@@ -211,9 +211,9 @@
         const [fam, ws] = rand(fams); const [a, b] = shuffle(ws);
         const others = shuffle(fams.filter(f => f[0] !== fam)).slice(0, 2).map(f => rand(f[1]));
         st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Which one rhymes with…"),
-          h("button", { class: "pick", style: { padding: "10px 40px" }, onclick: () => sayWord(a) }, h("div", { style: { fontSize: "110px" } }, PIC[a]), h("div", { class: "read", style: { fontSize: "50px", fontWeight: 700 } }, a)));
+          h("button", { class: "pick", style: { padding: "10px 40px" }, onclick: () => sayWord(a) }, pic(PIC[a], 130), h("div", { class: "read", style: { fontSize: "50px", fontWeight: 700 } }, a)));
         const row = h("div", { class: "choice-row" });
-        shuffle([b, ...others]).forEach(w => row.append(choiceBtn([h("div", { style: { fontSize: "80px" } }, PIC[w]), h("div", { class: "read", style: { fontSize: "36px" } }, w)], "", async btn => {
+        shuffle([b, ...others]).forEach(w => row.append(choiceBtn([pic(PIC[w], 100), h("div", { class: "read", style: { fontSize: "36px" } }, w)], "", async btn => {
           if (w === b) { btn.classList.add("right"); SFX.play("right"); await sayWord(a); await sayWord(b); next(); }
           else { btn.classList.add("wrong"); SFX.play("wrong"); miss(); sayWord(w); setTimeout(() => btn.classList.remove("wrong"), 500); }
         })));
@@ -232,7 +232,7 @@
         const row = h("div", { class: "choice-row" });
         SIGHT.forEach((s, i) => row.append(h("button", { class: "pick", style: { width: "250px", height: "250px", background: s.color }, onclick: () => playSight(i) },
           h("div", { class: "t", style: { fontSize: "34px" } }, s.name), h("div", { class: "read", style: { fontSize: "26px" } }, s.words.slice(0, 5).join(" · ")),
-          APP.done["game:sight" + i] ? h("div", { class: "stars" }, "⭐") : null)));
+          APP.done["game:sight" + i] ? h("div", { class: "stars" }, starRow(1)) : null)));
         c.append(row); body.append(c);
       }
     });
@@ -269,7 +269,7 @@
       round(st, next, miss, r) {
         const w = words[r]; const opts = shuffle([w, ...shuffle(CVC.filter(c => c.w !== w.w && (c.w[1] === w.w[1] || c.w[0] === w.w[0]))).slice(0, 2)]);
         while (opts.length < 3) opts.push(rand(CVC.filter(c => !opts.includes(c))));
-        st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Read the words. Which one is this?"), h("div", { style: { fontSize: "170px" } }, w.pic));
+        st.append(h("div", { class: "hand", style: { fontSize: "40px" } }, "Read the words. Which one is this?"), pic(w.pic, 190));
         const row = h("div", { class: "choice-row" });
         opts.forEach(o => row.append(choiceBtn(o.w, "", async b => {
           if (o === w) { b.classList.add("right"); SFX.play("right"); await sayWord(o.w); next(); }
@@ -309,7 +309,7 @@
           tray.append(el);
         });
         drawSlots();
-        st.append(h("div", { style: { display: "flex", alignItems: "center", gap: "30px" } }, h("div", { style: { fontSize: "150px" } }, w.pic), speaker(() => sayWord(w.w))), slots, h("div", { style: { height: "10px" } }), tray);
+        st.append(h("div", { style: { display: "flex", alignItems: "center", gap: "30px" } }, pic(w.pic, 170), speaker(() => sayWord(w.w))), slots, h("div", { style: { height: "10px" } }), tray);
         (r === 0 ? sayPrompt("build") : Promise.resolve()).then(() => sayWord(w.w));
       }
     });
@@ -330,7 +330,7 @@
             h("div", { class: "tape", style: { top: "-6px", left: "20px", transform: "rotate(-6deg)" } }),
             h("div", { style: { position: "absolute", top: "10px", right: "10px", background: "#fff", border: "2px solid #2f2a3b", borderRadius: "20px", padding: "2px 12px", fontWeight: 700 } }, "Level " + b.level),
             h("div", { style: { position: "relative", height: "70px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", borderTop: "3px solid #2f2a3b" } },
-              h("div", { class: "t" }, b.title), st ? h("span", {}, "⭐".repeat(st)) : null));
+              h("div", { class: "t" }, b.title), st ? starRow(st) : null));
         }, { cols });
       }
     });
@@ -346,15 +346,15 @@
           h("img", { src: `assets/img/reader/${b.id}.webp`, style: { width: "380px", border: "4px solid #fff", outline: "3px solid #2f2a3b", transform: "rotate(-2deg)", boxShadow: "6px 8px 0 rgba(0,0,0,.2)" } }),
           h("div", { class: "hand", style: { fontSize: "38px" } }, "How shall we read today?"),
           h("div", { class: "choice-row" },
-            h("button", { class: "pbtn yellow", style: { fontSize: "30px" }, onclick: () => start("listen") }, "👂 Read to me"),
-            h("button", { class: "pbtn blue", style: { fontSize: "30px" }, onclick: () => start("echo") }, "🦜 Echo read"),
-            h("button", { class: "pbtn green", style: { fontSize: "30px" }, onclick: () => start("solo") }, "🙋 I'll read!")));
+            h("button", { class: "pbtn yellow", style: { fontSize: "30px" }, onclick: () => start("listen") }, ib("ear", "Read to me", 30)),
+            h("button", { class: "pbtn blue", style: { fontSize: "30px" }, onclick: () => start("echo") }, ib("parrot", "Echo read", 30)),
+            h("button", { class: "pbtn green", style: { fontSize: "30px" }, onclick: () => start("solo") }, ib("book", "I'll read!", 30))));
         body.append(modes);
         let page = 0, mode = "listen", rec = null, recUrl = null;
         const img = h("img", { src: `assets/img/reader/${b.id}.webp` });
         const words = h("div", { class: "words big" });
         const tools = h("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginTop: "20px" } });
-        const prev = h("button", { class: "arrow" }, "◀"), next = h("button", { class: "arrow" }, "▶");
+        const prev = h("button", { class: "arrow", "aria-label": "Previous page" }, icon("left", 34)), next = h("button", { class: "arrow", "aria-label": "Next page" }, icon("right", 34));
         const txt = h("div", { class: "txt" }, h("div", { class: "hand pnum", style: { fontSize: "28px" } }), words, tools, h("div", { class: "book-ctrl" }, prev, next));
         const book = h("div", { class: "book", style: { display: "none" } }, h("div", { class: "pic" }, img), txt);
         body.append(book);
@@ -366,7 +366,7 @@
           txt.querySelector(".pnum").textContent = `Page ${page + 1} of ${b.pages.length}`;
           const spans = layWords(words, b.pages[page]);
           prev.disabled = page === 0;
-          const hear = h("button", { class: "pbtn small" }, "🔊 Hear it");
+          const hear = h("button", { class: "pbtn small" }, ib("speaker", "Hear it", 22));
           hear.onclick = () => narrate(clip(), spans, b.pages[page]);
           if (mode === "listen") {
             narrate(clip(), spans, b.pages[page]).then(() => { if (!win.closed && mode === "listen") setTimeout(() => { if (!win.closed && words.isConnected) { page++; show(); } }, 1300); });
@@ -379,8 +379,8 @@
           }
         }
         function recBtn() {
-          const btn = h("button", { class: "pbtn small pink" }, "🎙 Record me");
-          const play = h("button", { class: "pbtn small white", style: { display: recUrl ? "" : "none" } }, "▶ Listen to me");
+          const btn = h("button", { class: "pbtn small pink" }, ib("mic", "Record me", 22));
+          const play = h("button", { class: "pbtn small white", style: { display: recUrl ? "" : "none" } }, ib("play", "Listen to me", 22));
           play.onclick = () => playClip(recUrl);
           btn.onclick = async () => {
             if (rec && rec.state === "recording") { rec.stop(); return; }
@@ -388,8 +388,8 @@
               const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
               const chunks = []; rec = new MediaRecorder(stream);
               rec.ondataavailable = e => chunks.push(e.data);
-              rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); recUrl = URL.createObjectURL(new Blob(chunks)); btn.textContent = "🎙 Record again"; play.style.display = ""; SFX.play("chime"); };
-              rec.start(); btn.textContent = "⏹ Stop"; setTimeout(() => rec && rec.state === "recording" && rec.stop(), 15000);
+              rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); recUrl = URL.createObjectURL(new Blob(chunks)); setIb(btn, "mic", "Record again", 22); play.style.display = ""; SFX.play("chime"); };
+              rec.start(); setIb(btn, "stop", "Stop", 22); setTimeout(() => rec && rec.state === "recording" && rec.stop(), 15000);
             } catch (e) { toast("Microphone not available. Ask a grown-up to allow it."); }
           };
           win.cleanup.push(() => { if (rec && rec.state === "recording") rec.stop(); });
@@ -415,7 +415,7 @@
             btn.onclick = () => { if (k === q.a) { btn.classList.add("right"); SFX.play("right"); setTimeout(() => quiz(qi + 1), 900); } else { wrongs++; btn.classList.add("wrong"); SFX.play("wrong"); sayPrompt("tryAgain"); setTimeout(() => btn.classList.remove("wrong"), 500); } };
             row.append(btn);
           });
-          body.append(h("div", { class: "center quiz" }, h("div", { style: { fontSize: "80px" } }, "🤔"), cutout("Question " + (qi + 1), 40), qtext, row));
+          body.append(h("div", { class: "center quiz" }, cutout("Question " + (qi + 1), 40), qtext, row));
         }
       }
     });
