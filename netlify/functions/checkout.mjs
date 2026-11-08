@@ -31,7 +31,7 @@ export default async req => {
     const pi = await createPaymentIntent({
       aed: order.price,
       successUrl: siteUrl() + "/thanks/?pi={PAYMENT_INTENT_ID}",
-      cancelUrl: siteUrl() + (order.kind === "renew" ? "/?renew=" + order.code : "/?cancelled=1#pricing")
+      cancelUrl: siteUrl() + (order.kind === "renew" ? "/storybloom/?renew=" + order.code : "/storybloom/?cancelled=1#pricing")
     });
     await saveOrder({ ...order, pi: pi.id, status: "open", created: Date.now() });
     return json({ url: pi.redirect_url });

@@ -41,6 +41,10 @@ async function waitHome(pg, label) {
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const pg = await phone.newPage();
   await pg.goto(base + "/");
+  ok((await pg.textContent("#sb-status")) === "Early access open", "unscrolled.me home lists StoryBloom with early access open");
+  await pg.click("text=Explore StoryBloom"); await pg.waitForURL(/\/storybloom\/$/);
+  ok(true, "home links through to the StoryBloom page");
+  await pg.goto(base + "/storybloom/");
   await pg.waitForFunction(() => document.querySelector("#spots").textContent.includes("families"));
   ok(await pg.isVisible("#join") && !(await pg.isVisible("#buy")), "landing shows the waitlist, not the checkout");
   await pg.screenshot({ path: shots + "/landing-phone.png", fullPage: true });
@@ -53,7 +57,7 @@ async function waitHome(pg, label) {
 
   const desk = await browser.newContext({ viewport: { width: 1280, height: 860 } });
   const d = await desk.newPage();
-  await d.goto(base + "/"); await d.waitForTimeout(600);
+  await d.goto(base + "/storybloom/"); await d.waitForTimeout(600);
   await d.screenshot({ path: shots + "/landing-desktop.png", fullPage: true });
 
   // admin: log in, give early access to the waitlisted parent
@@ -77,6 +81,7 @@ async function waitHome(pg, label) {
   ok((await (await t.request.get(base + "/app/assets/audio/songs/baa-baa.mp3")).status()) === 401, "content is locked without a pass");
   await t.goto(base + "/app/");
   await t.waitForSelector("#sb-lock input");
+  ok(await t.evaluate(() => { const i = document.querySelector("#sb-lock img.flower"); return i && i.complete && i.naturalWidth > 0; }), "the bloom flower shows on the unlock screen");
   await t.screenshot({ path: shots + "/app-locked.png" });
   await t.fill("#sb-lock input", code.toLowerCase().replace(/-/g, " "));
   await t.click("#sb-lock button[type=submit]");
@@ -138,7 +143,9 @@ async function waitHome(pg, label) {
   console.log("Founding mode");
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const pg = await ctx.newPage();
-  await pg.goto(base + "/");
+  await pg.goto(base + "/"); await pg.waitForFunction(() => /founding spots left/.test(document.querySelector("#sb-status").textContent));
+  ok(true, "home shows the founding spots once sales open");
+  await pg.goto(base + "/storybloom/");
   await pg.waitForSelector("#buy:not([hidden])");
   ok((await pg.textContent("#buy-btn")) === "Pay AED 39", "checkout shows the founding price");
   ok((await pg.textContent("#spots")).includes("100 of 100"), "founding spots counter shows");
@@ -161,7 +168,7 @@ async function waitHome(pg, label) {
 
   // renewal keeps the founding price and extends the same code
   const before = (await admin(base, "summary")).members.find(m => m.code === code).until;
-  await pg.goto(base + "/?renew=" + code);
+  await pg.goto(base + "/storybloom/?renew=" + code);
   await pg.waitForSelector("#renew-btn"); await pg.click("#renew-btn");
   await pg.waitForURL(/__ziina\/pay/);
   ok((await pg.textContent("body")).includes("AED 39.00"), "renewal is at the locked founding price");

@@ -10,7 +10,7 @@ export default async req => {
   const state = memberState(m);
   if (state === "unknown") return json({ status: "invalid", error: "We couldn't find that code. Check the letters and try again." }, 404);
   if (state === "revoked") return json({ status: "revoked", error: "This code has been switched off. Please message us." }, 403);
-  if (state === "expired") return json({ status: "expired", error: "This code's year has ended.", renewUrl: siteUrl() + "/?renew=" + m.code }, 403);
+  if (state === "expired") return json({ status: "expired", error: "This code's year has ended.", renewUrl: siteUrl() + "/storybloom/?renew=" + m.code }, 403);
   if (attachDevice(m, device)) return json({ status: "device_limit", error: "This code is already on the maximum number of devices. Message us and we'll reset it." }, 403);
   await saveMember(m);
   const p = await issuePass(m, device);

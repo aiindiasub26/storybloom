@@ -6,7 +6,7 @@ import { readPass, parseJwk, publicJwk } from "../lib/pass.mjs";
 const PUBLIC = new Set([
   "/app/", "/app/index.html", "/app/manifest.webmanifest", "/app/sw.js",
   "/app/css/app.css", "/app/js/access.js", "/app/js/pass-key.js",
-  "/app/assets/img/icon-192.png", "/app/assets/img/icon-512.png"
+  "/app/assets/img/icon-192.png", "/app/assets/img/icon-512.png", "/app/assets/img/bloom.svg"
 ]);
 const isPublic = p => PUBLIC.has(p) || p.startsWith("/app/assets/fonts/");
 

@@ -48,7 +48,7 @@ export function welcomeEmail(m) {
 }
 
 export function renewEmail(m, daysLeft) {
-  const link = siteUrl() + "/?renew=" + encodeURIComponent(m.code);
+  const link = siteUrl() + "/storybloom/?renew=" + encodeURIComponent(m.code);
   return {
     subject: daysLeft <= 3 ? "StoryBloom ends in " + daysLeft + " days" : "Your StoryBloom year ends soon",
     html: wrap(`<p>Hi ${esc(m.name) || "there"},</p>

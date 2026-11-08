@@ -9,7 +9,7 @@
 <header class="top"><div class="wrap"><a class="brand" href="/">unscrolled<span>.</span></a><nav><a class="ig" href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a></nav></div></header>
 <main class="page"><div class="wrap">
   <div class="card" id="box" style="text-align:center;position:relative"><div class="tape"></div>
-    <div style="font-size:54px">🌼</div>
+    <img src="/img/bloom.svg" width="130" height="130" alt="" style="margin:0 auto">
     <h1 style="font-size:38px">Confirming your payment…</h1>
     <p class="muted">This takes a few seconds. Please keep this page open.</p>
   </div>
@@ -31,7 +31,7 @@
   }
   function show(r) {
     const renew = r.kind === "renew";
-    box.innerHTML = `<div class="tape"></div><div style="font-size:54px">🌼</div>
+    box.innerHTML = `<div class="tape"></div><img src="/img/bloom.svg" width="130" height="130" alt="" style="margin:0 auto">
       <h1 style="font-size:38px">${renew ? "Renewed, thank you!" : r.plan === "founding" ? "Welcome, founding family!" : "Welcome to StoryBloom!"}</h1>
       <p class="muted">${renew ? "Your code carries on until " + fmt(r.until) + ". Open StoryBloom once while online and it updates by itself." : "Here's your code. It works on up to 3 devices until " + fmt(r.until) + "."}</p>
       <div class="codebox">${esc(r.code)}</div>
@@ -49,10 +49,10 @@
       </div>`;
   }
   function problem(s) {
-    box.innerHTML = `<div class="tape pink"></div><div style="font-size:54px">🌼</div>
+    box.innerHTML = `<div class="tape pink"></div><img src="/img/bloom.svg" width="110" height="110" alt="" style="margin:0 auto">
       <h1 style="font-size:34px">${s === "failed" ? "The payment didn't go through" : "We're still checking your payment"}</h1>
       <p class="muted">${s === "failed" ? "Nothing was charged. You can try again from the pricing section." : "If money left your account, don't worry: your code will reach you by email. You can also DM us on Instagram with your name and we'll sort it out."}</p>
-      <a class="btn ghost" href="/#pricing">Back to StoryBloom</a>`;
+      <a class="btn ghost" href="/storybloom/#pricing">Back to StoryBloom</a>`;
   }
   if (!pi) problem("unknown"); else poll();
 })();

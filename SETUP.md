@@ -6,7 +6,8 @@ What's on the site:
 
 | Address | What it is |
 |---|---|
-| unscrolled.me | StoryBloom page: waitlist now, checkout later |
+| unscrolled.me | unscrolled. brand home: lists StoryBloom (status follows the sales stage) |
+| unscrolled.me/storybloom | StoryBloom page: waitlist now, checkout later |
 | unscrolled.me/app | The StoryBloom app (locked until a code is entered) |
 | unscrolled.me/admin | Your dashboard: waitlist, give codes, extend, switch off |
 | unscrolled.me/thanks | Shown after a Ziina payment, with the family's code |
@@ -43,7 +44,7 @@ What's on the site:
    Then make the GitHub repository **private** (GitHub → *Settings* → *General* → *Danger zone* → *Change visibility*). Netlify keeps working; otherwise anyone can download the stories and songs straight from GitHub.
 
 ### Running early access
-- Parents join the waitlist on unscrolled.me (with an "I'd join the Google Meet" tick box).
+- Parents join the waitlist on unscrolled.me/storybloom (with an "I'd join the Google Meet" tick box).
 - In /admin, tap **Give early access** next to a name → **Create code** → **Open in WhatsApp** (the message is written for you: code, link, 21 days, the Meet).
 - After 21 days the app locks on its own, even offline, with a "your early access has ended" screen.
 - Want to keep a family going until the Google Meet? **+7 days** or **+ days…** in the families list.

@@ -97,5 +97,5 @@
   window.addEventListener("stagefit", () => { /* layout is CSS driven; rebuild home on orientation change */ });
   let lastPortrait = stage.classList.contains("portrait");
   window.addEventListener("resize", () => { const p = stage.classList.contains("portrait"); if (p !== lastPortrait) { lastPortrait = p; buildHome(); } });
-  setTimeout(() => { const s = $("#splash"); if (s) { s.style.opacity = 0; setTimeout(() => s.remove(), 500); } }, 900);
+  setTimeout(() => { const s = $("#splash"); if (s) { s.style.opacity = 0; setTimeout(() => s.remove(), 500); } }, 1600); // let the bloom finish opening
 })();

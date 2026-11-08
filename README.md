@@ -4,11 +4,11 @@ An offline learning-to-read app with bedtime stories, guided reading, games,
 hands-on activities and printables. Built as an installable web app (PWA).
 
 ## Where it lives
-StoryBloom is sold and served at **unscrolled.me** (Netlify). Setup steps, settings and how the lock works: see [SETUP.md](SETUP.md).
+StoryBloom is the first product on **unscrolled.me** (Netlify), at unscrolled.me/storybloom. Setup steps, settings and how the lock works: see [SETUP.md](SETUP.md).
 
 | Folder | What it is |
 |---|---|
-| `site/` | The unscrolled.me website: StoryBloom page, thank-you, privacy, admin |
+| `site/` | The unscrolled.me website: brand home, StoryBloom page (`site/storybloom/`), thank-you, privacy, admin |
 | `site/app/` | The StoryBloom app itself (installable, works offline) |
 | `netlify/functions/` | Waitlist, Ziina checkout, code unlock, pass refresh, admin, renewal reminders |
 | `netlify/edge-functions/gate.js` | Only devices with a valid pass can download the app's content |

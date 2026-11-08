@@ -6,7 +6,7 @@
    - The app's content only loads after the pass checks out. */
 (function () {
   const PASS = "storybloom.pass", DEV = "storybloom.device", SEEN = "storybloom.seen";
-  const SHOP = "/";
+  const SHOP = "/storybloom/";
   const DAY = 864e5, REFRESH_AFTER = 12 * 36e5, CLOCK_SLACK = 2 * DAY, WARN_DAYS = 14;
   const SCRIPTS = ["js/data-stories.js", "js/data-reading.js", "js/data-activities.js", "js/word-bank.js", "js/icons.js", "js/sfx.js",
     "js/core.js", "js/stories.js", "js/reading.js", "js/activities.js", "js/print.js", "js/data-songs.js", "js/songs.js", "js/home.js"];
@@ -139,7 +139,7 @@
     s.textContent = `
 #sb-lock{position:fixed;inset:0;z-index:1000;background:#fbf6ec;display:grid;place-items:center;padding:24px;font-family:Fredoka,Andika,system-ui,sans-serif;color:#2f2a3b;touch-action:manipulation;user-select:text;-webkit-user-select:text;overflow:auto}
 #sb-lock .card{width:min(460px,100%);background:#fff;border:3px solid #2f2a3b;border-radius:28px 34px 30px 32px;box-shadow:6px 8px 0 #2f2a3b;padding:30px 26px;text-align:center}
-#sb-lock .flower{font-size:56px;line-height:1}
+#sb-lock .flower{display:block;margin:-6px auto 0;width:120px;height:120px}
 #sb-lock h1{font-size:30px;margin:10px 0 6px}
 #sb-lock p{font-family:Andika,system-ui,sans-serif;font-size:18px;line-height:1.45;margin:8px 0;color:#5d5670}
 #sb-lock input{width:100%;font:600 22px Fredoka,system-ui,sans-serif;letter-spacing:2px;text-transform:uppercase;text-align:center;padding:14px;border:3px solid #2f2a3b;border-radius:16px;margin:14px 0 10px;background:#fffdf7;color:#2f2a3b}
@@ -188,7 +188,7 @@
     } }, label);
     const shop = el("p", { class: "small" }, "No code yet? ", el("a", { href: SHOP + "#pricing", target: "_blank", rel: "noopener" }, "Get StoryBloom at unscrolled.me"));
 
-    card.append(el("div", { class: "flower" }, "🌼"));
+    card.append(el("img", { class: "flower", src: "assets/img/bloom.svg", width: "120", height: "120", alt: "" }));
     if (st.state === "expired" && st.p.p === "early") {
       card.append(el("h1", {}, "Your early access has ended"),
         el("p", {}, "Thank you for trying StoryBloom with us! Watch your WhatsApp for the parents' call and founding-family spots. Stars and stickers are saved on this device."),
