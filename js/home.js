@@ -17,7 +17,7 @@
     const tiles = h("div", { class: "tiles" });
     const T = [
       { cls: "big", img: "assets/img/home/hero.webp", title: "Learn to Read", sub: "Sounds · words · little books", emo: "blocks", badge: "START HERE", fn: openLearn, bg: "#fff3c4" },
-      { img: "assets/img/home/night.webp", title: "Bedtime Stories", sub: "20 stories with sounds", emo: "moon", fn: openStories },
+      { img: "assets/img/home/night.webp", title: "Bedtime Stories", sub: "20 stories with sounds", fn: openStories },
       { img: "assets/img/home/make.webp", title: "Make Together", sub: "16 hands-on ideas", emo: "scissors", fn: openMakeTogether },
       { img: "assets/img/home/print.webp", title: "Print Shop", sub: "Worksheets & colouring", emo: "printer", fn: openPrintShop },
       { img: "assets/img/songs/jungle-groove.webp", title: "Sing Along", sub: "20 songs to dance & read", emo: "notes", fn: openSongs }
@@ -26,7 +26,7 @@
       const tile = h("button", { class: "tile " + (t.cls || ""), onclick: () => { SFX.unlock(); t.fn(); } },
         h("div", { class: "card" }, h("img", { src: t.img, alt: "" }), h("div", { style: { position: "absolute", inset: 0, background: "linear-gradient(transparent 45%, rgba(251,246,236,.85))" } })),
         t.badge ? h("div", { class: "badge" }, t.badge) : null,
-        h("div", { class: "emo" }, pic(t.emo, 96)),
+        t.emo ? h("div", { class: "emo" }, pic(t.emo, 96)) : null,
         h("div", { class: "label" }, cutout(t.title), h("div", { class: "sub" }, t.sub)));
       tiles.append(tile);
     });
