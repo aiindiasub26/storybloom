@@ -74,6 +74,7 @@
           const left = h("div", { class: "note" }, h("h3", {}, "Settings"),
             sw("sfx", "Sound effects"), sw("amb", "Background nature sounds in stories"),
             h("div", { class: "form-row" }, "Name: ", nameIn),
+            window.accessInfo ? accessInfo() : null,
             h("div", { class: "form-row" }, h("button", { class: "pbtn small pink", onclick: e => { const b = e.currentTarget; if (!b.dataset.sure) { b.dataset.sure = 1; b.textContent = "Tap again to reset everything"; setTimeout(() => { delete b.dataset.sure; b.textContent = "Reset progress"; }, 4000); return; } APP.stars = 0; APP.stickers = []; APP.done = {}; save(); buildHome(); toast("Progress reset"); b.textContent = "Reset progress"; delete b.dataset.sure; } }, "Reset progress")));
           const done = APP.done;
           const count = p => Object.keys(done).filter(k => k.startsWith(p)).length;

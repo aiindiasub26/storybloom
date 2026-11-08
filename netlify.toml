@@ -1,0 +1,34 @@
+# unscrolled.me on Netlify: the shop pages live in site/, the StoryBloom app in site/app/.
+[build]
+  publish = "site"
+  command = "npm run build"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/app"
+  to = "/app/"
+  status = 301
+
+[[redirects]]
+  from = "/storybloom"
+  to = "/"
+  status = 301
+
+[[headers]]
+  for = "/app/*"
+  [headers.values]
+    Cache-Control = "private, no-cache"
+
+[[headers]]
+  for = "/app/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Cache-Control = "no-store"

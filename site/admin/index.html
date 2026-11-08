@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · StoryBloom</title><meta name="robots" content="noindex">
+<link rel="icon" href="/img/icon-192.png"><link rel="stylesheet" href="/site.css">
+<style>
+  body { font-size: 16px; }
+  .page { padding: 26px 0 60px; }
+  .panel { background: #fff; border: 2.5px solid var(--ink); border-radius: 18px; padding: 20px; margin-bottom: 22px; box-shadow: 3px 4px 0 var(--ink); }
+  .panel h2 { font-size: 24px; margin-bottom: 10px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; }
+  .stat { background: var(--butter); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 14px; min-width: 130px; }
+  .stat b { font-family: var(--ui); font-size: 28px; display: block; line-height: 1.1; }
+  .ok { color: #2f7d4a; } .bad { color: #c4473a; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .tbl th { text-align: left; font-family: var(--ui); font-weight: 600; border-bottom: 2px solid var(--ink); padding: 6px 8px; white-space: nowrap; }
+  .tbl td { border-bottom: 1px dashed rgba(47,42,59,.25); padding: 8px; vertical-align: top; }
+  .scroll { overflow-x: auto; }
+  .tag { display: inline-block; border: 1.5px solid var(--ink); border-radius: 10px; padding: 0 7px; font-size: 13px; font-family: var(--ui); background: #fff; }
+  .tag.early { background: #d8f0ee; } .tag.founding { background: var(--butter); } .tag.regular { background: #fde3ec; } .tag.off { background: #eee; text-decoration: line-through; }
+  .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .acts button { font: 500 13px var(--ui); border: 1.5px solid var(--ink); background: #fff; border-radius: 10px; padding: 3px 9px; cursor: pointer; }
+  .acts button:hover { background: var(--butter); }
+  .grid3 { display: grid; gap: 10px; }
+  @media (min-width: 700px) { .grid3 { grid-template-columns: repeat(3, 1fr); } }
+  textarea { min-height: 150px; font-size: 15px; }
+  .result { background: var(--paper); border: 2px dashed var(--ink); border-radius: 14px; padding: 14px; margin-top: 14px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: var(--ui); display: none; z-index: 50; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">unscrolled<span>.</span> <small style="font-size:15px;color:var(--ink-soft)">admin</small></a><nav><button class="btn small ghost" id="logout" hidden>Log out</button></nav></div></header>
+<main class="page"><div class="wrap">
+
+  <div class="panel" id="login" style="max-width:420px;margin:30px auto">
+    <h2>Admin login</h2>
+    <form id="login-form"><div class="field"><label for="pw">Password</label><input type="password" id="pw" autocomplete="current-password"></div>
+    <button class="btn" type="submit">Log in</button><p class="formmsg err" id="login-msg"></p></form>
+  </div>
+
+  <div id="app" hidden>
+    <div class="panel">
+      <h2>Overview</h2>
+      <div class="stats" id="stats"></div>
+      <p style="margin:14px 0 0" id="setup"></p>
+    </div>
+
+    <div class="panel" id="create">
+      <h2>Give a code</h2>
+      <p class="muted">For early-access families, gifts, or anyone who paid you another way. Then send them the WhatsApp message.</p>
+      <form id="create-form">
+        <div class="grid3">
+          <div class="field"><label>Parent's name</label><input type="text" name="name" required></div>
+          <div class="field"><label>WhatsApp</label><input type="tel" name="phone" placeholder="+9715…"></div>
+          <div class="field"><label>Email</label><input type="email" name="email"></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>Type</label><select name="plan"><option value="early">Early access</option><option value="gift">Gift</option><option value="founding">Founding family (paid)</option><option value="regular">Yearly (paid)</option></select></div>
+          <div class="field"><label>Days</label><input type="number" name="days" value="21" min="1" max="3650"></div>
+          <div class="field"><label>Price paid (AED)</label><input type="number" name="price" value="0" min="0"></div>
+        </div>
+        <div class="field"><label>Note (only you see this)</label><input type="text" name="note" placeholder="e.g. school friend, joined via Instagram"></div>
+        <label class="check"><input type="checkbox" name="sendEmail"> Also email the code (needs email set up)</label>
+        <button class="btn" type="submit">Create code</button>
+      </form>
+      <div id="create-result"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Early-access waitlist <span class="muted" id="wl-count"></span></h2>
+      <div class="toolbar">
+        <button class="btn small ghost" id="wl-csv">Download CSV</button>
+        <button class="btn small ghost" id="wl-meet">Copy Google Meet invite list</button>
+      </div>
+      <div class="scroll"><table class="tbl" id="wl"></table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Families with codes <span class="muted" id="m-count"></span></h2>
+      <div class="toolbar"><input type="text" id="m-search" placeholder="Search name, code, number…" style="max-width:320px"><button class="btn small ghost" id="m-csv">Download CSV</button></div>
+      <div class="scroll"><table class="tbl" id="members"></table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Payments</h2>
+      <p class="muted" id="pay-help"></p>
+      <div class="toolbar"><button class="btn small ghost" id="hook">Connect Ziina payment notifications</button></div>
+      <div class="scroll"><table class="tbl" id="orders"></table></div>
+    </div>
+  </div>
+</div></main>
+<div id="toast"></div>
+
+<script>
+(function () {
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const DAY = 864e5;
+  const fmt = ms => ms ? new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+  const PLAN = { early: "Early access", founding: "Founding", regular: "Yearly", gift: "Gift" };
+  let KEY = sessionStorage.getItem("sb-admin") || "", DATA = null;
+
+  const toast = t => { const e = $("#toast"); e.textContent = t; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = "none", 2200); };
+  const copy = async t => { try { await navigator.clipboard.writeText(t); toast("Copied"); } catch (e) { prompt("Copy this:", t); } };
+  const api = async (action, extra = {}) => {
+    const r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": KEY }, body: JSON.stringify({ action, ...extra }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) { logout(); throw new Error(j.error || "Wrong password"); }
+    if (!r.ok) throw new Error(j.error || "Error " + r.status);
+    return j;
+  };
+  const link = code => location.origin + "/app/?code=" + encodeURIComponent(code);
+  const firstName = n => String(n || "").trim().split(/\s+/)[0] || "there";
+  function waMessage(m) {
+    const early = m.plan === "early";
+    return early
+      ? `Hi ${firstName(m.name)}! 🌼 Here's your StoryBloom early access.\n\nYour code: ${m.code}\nOpen it on your child's tablet: ${link(m.code)}\n\nIt's free for ${Math.round((m.until - m.created) / DAY)} days. Wait for "Ready to use offline", then add it to your home screen and it works without internet.\n\nAfter the 3 weeks I'd love you to join a 1-hour parents' Google Meet to hear what worked and what to build next.\n\nAswathi`
+      : `Hi ${firstName(m.name)}! 🌼 Welcome to StoryBloom.\n\nYour code: ${m.code}\nOpen it on your child's tablet: ${link(m.code)}\n\nIt works on up to 3 devices until ${fmt(m.until)}. Wait for "Ready to use offline", then add it to your home screen and it works without internet.\n\nAswathi`;
+  }
+  const waLink = (phone, text) => { const p = String(phone || "").replace(/[^0-9]/g, ""); return p ? `https://wa.me/${p}?text=${encodeURIComponent(text)}` : null; };
+  const csv = (rows, cols) => [cols.join(",")].concat(rows.map(r => cols.map(c => '"' + String(r[c] == null ? "" : r[c]).replace(/"/g, '""') + '"').join(","))).join("\n");
+  const download = (name, text) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); };
+
+  function logout() { sessionStorage.removeItem("sb-admin"); KEY = ""; $("#app").hidden = true; $("#login").hidden = false; $("#logout").hidden = true; }
+  $("#logout").onclick = logout;
+  $("#login-form").onsubmit = async e => {
+    e.preventDefault(); KEY = $("#pw").value; $("#login-msg").textContent = "";
+    try { await load(); sessionStorage.setItem("sb-admin", KEY); } catch (err) { $("#login-msg").textContent = err.message; }
+  };
+
+  async function load() {
+    DATA = await api("summary");
+    $("#login").hidden = true; $("#app").hidden = false; $("#logout").hidden = false;
+    render();
+  }
+
+  function render() {
+    const d = DATA, now = Date.now(), o = d.offer;
+    const active = d.members.filter(m => !m.revoked && m.until > now);
+    const modeText = { waitlist: "Waitlist (early access, no sales)", founding: "Selling: founding families", open: "Selling: yearly", closed: "Closed" }[o.mode] || o.mode;
+    $("#stats").innerHTML = [
+      ["Waitlist", d.waitlist.length], ["Want the Meet", d.waitlist.filter(w => w.meet).length],
+      ["Active codes", active.length], ["Early access", active.filter(m => m.plan === "early").length],
+      ["Founding sold", (o.foundingLimit - o.foundingLeft) + " / " + o.foundingLimit], ["Paid families", active.filter(m => m.plan === "founding" || m.plan === "regular").length]
+    ].map(([k, v]) => `<div class="stat"><b>${esc(v)}</b>${esc(k)}</div>`).join("");
+    $("#setup").innerHTML = `Site mode: <b>${esc(modeText)}</b> · Ziina: ${d.ziinaReady ? '<span class="ok">connected' + (d.ziinaTest ? " (test mode)" : "") + "</span>" : '<span class="muted">not set up yet</span>'} · Email: ${d.emailReady ? '<span class="ok">on</span>' : '<span class="muted">off (send codes on WhatsApp)</span>'}`;
+    $("#pay-help").textContent = d.ziinaReady ? "Payments made on the website appear here. Families who paid get their code automatically." : "Payments are off while you run early access. When you're ready to sell, add your Ziina key in Netlify and switch SALES_MODE to founding (see SETUP.md).";
+    $("#hook").hidden = !d.ziinaReady;
+    renderWaitlist(); renderMembers(); renderOrders();
+  }
+
+  function renderWaitlist() {
+    const w = DATA.waitlist, codes = new Set(DATA.members.map(m => (m.phone || m.email || "").replace(/\s/g, "")));
+    $("#wl-count").textContent = "(" + w.length + ")";
+    $("#wl").innerHTML = `<tr><th>Joined</th><th>Name</th><th>WhatsApp / email</th><th>Age</th><th>Where</th><th>Meet</th><th>From</th><th></th></tr>` +
+      w.map((x, i) => `<tr><td>${fmt(x.at)}</td><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.age)}</td><td>${esc(x.country)}</td><td>${x.meet ? "✓" : ""}</td><td class="muted">${esc(x.source)}</td>
+        <td class="acts">${codes.has(String(x.contact).replace(/\s/g, "")) ? '<span class="tag early">has code</span>' : `<button data-give="${i}">Give early access</button>`}</td></tr>`).join("");
+    $("#wl").querySelectorAll("[data-give]").forEach(b => b.onclick = () => {
+      const x = w[b.dataset.give], f = $("#create-form");
+      f.elements.name.value = x.name; const isMail = /@/.test(x.contact);
+      f.email.value = isMail ? x.contact : ""; f.phone.value = isMail ? "" : x.contact;
+      f.plan.value = "early"; f.days.value = 21; f.price.value = 0; f.note.value = [x.age && "age " + x.age, x.country, x.meet && "wants Meet"].filter(Boolean).join(", ");
+      $("#create").scrollIntoView({ behavior: "smooth" });
+    });
+  }
+
+  function renderMembers() {
+    const q = $("#m-search").value.trim().toLowerCase(), now = Date.now(), max = DATA.settings.maxDevices;
+    const list = DATA.members.filter(m => !q || [m.code, m.name, m.email, m.phone, m.note].join(" ").toLowerCase().includes(q));
+    $("#m-count").textContent = "(" + DATA.members.length + ")";
+    $("#members").innerHTML = `<tr><th>Code</th><th>Family</th><th>Type</th><th>Until</th><th>Devices</th><th>Actions</th></tr>` + list.map(m => {
+      const left = Math.ceil((m.until - now) / DAY), state = m.revoked ? '<span class="tag off">switched off</span>' : left <= 0 ? '<span class="bad">ended</span>' : left <= 14 ? `<span class="bad">${left} days left</span>` : `<span class="muted">${left} days left</span>`;
+      return `<tr><td><b>${esc(m.code)}</b></td><td>${esc(m.name)}<br><span class="muted">${esc(m.phone)} ${esc(m.email)}</span>${m.note ? `<br><span class="muted">${esc(m.note)}</span>` : ""}</td>
+        <td><span class="tag ${esc(m.plan)}">${esc(PLAN[m.plan] || m.plan)}</span>${m.price ? `<br><span class="muted">AED ${esc(m.price)}</span>` : ""}</td>
+        <td>${fmt(m.until)}<br>${state}</td><td>${m.devices.length} / ${max}</td>
+        <td class="acts" data-code="${esc(m.code)}"><button data-a="wa">WhatsApp message</button><button data-a="extend7">+7 days</button><button data-a="extend">+ days…</button><button data-a="resetDevices">Reset devices</button>${m.revoked ? '<button data-a="restore">Switch on</button>' : '<button data-a="revoke">Switch off</button>'}</td></tr>`;
+    }).join("");
+    $("#members").querySelectorAll("[data-a]").forEach(b => b.onclick = async () => {
+      const code = b.parentNode.dataset.code, m = DATA.members.find(x => x.code === code), a = b.dataset.a;
+      if (a === "wa") return showMessage(m);
+      try {
+        if (a === "extend7") await api("extend", { code, days: 7 });
+        else if (a === "extend") { const days = Number(prompt("Add how many days?", "21")); if (!days) return; await api("extend", { code, days }); }
+        else if (a === "revoke") { if (!confirm("Switch off " + code + "? The app locks next time that device goes online.")) return; await api("revoke", { code }); }
+        else await api(a, { code });
+        toast("Done"); await load();
+      } catch (e) { alert(e.message); }
+    });
+  }
+  $("#m-search").oninput = renderMembers;
+
+  function renderOrders() {
+    $("#orders").innerHTML = DATA.orders.length ? `<tr><th>Date</th><th>Name</th><th>Email</th><th>Type</th><th>AED</th><th>Status</th><th>Code</th></tr>` +
+      DATA.orders.map(o => `<tr><td>${fmt(o.created)}</td><td>${esc(o.name)}</td><td>${esc(o.email)}</td><td>${o.kind === "renew" ? "Renewal" : esc(PLAN[o.plan])}</td><td>${esc(o.price)}</td><td>${o.status === "fulfilled" ? '<span class="ok">paid</span>' : o.status === "open" ? '<span class="muted">not paid</span>' : esc(o.status)}</td><td>${esc(o.code || "")}</td></tr>`).join("")
+      : `<tr><td class="muted">No payments yet.</td></tr>`;
+  }
+
+  function showMessage(m, target) {
+    const text = waMessage(m), wa = waLink(m.phone, text);
+    const box = target || document.createElement("div");
+    box.className = "result";
+    box.innerHTML = `<p style="margin:0 0 6px"><b>${esc(m.code)}</b> for ${esc(m.name)} · until ${fmt(m.until)}</p><textarea readonly>${esc(text)}</textarea>
+      <div class="toolbar" style="margin-top:8px"><button class="btn small" data-copy>Copy message</button>${wa ? `<a class="btn small ghost" href="${wa}" target="_blank" rel="noopener">Open in WhatsApp</a>` : ""}<button class="btn small ghost" data-link>Copy link only</button></div>`;
+    box.querySelector("[data-copy]").onclick = () => copy(text);
+    box.querySelector("[data-link]").onclick = () => copy(link(m.code));
+    if (!target) { const row = document.querySelector(`[data-code="${m.code}"]`).closest("tr"); const tr = document.createElement("tr"); tr.innerHTML = '<td colspan="6"></td>'; tr.firstChild.append(box); row.after(tr); }
+  }
+
+  $("#create-form").onsubmit = async e => {
+    e.preventDefault();
+    const f = e.target, data = Object.fromEntries(new FormData(f)); data.sendEmail = f.sendEmail.checked;
+    if (!String(data.name || "").trim()) return alert("Add the parent's name");
+    try {
+      const r = await api("create", data);
+      if (r.emailed) toast("Code emailed");
+      f.reset(); f.days.value = 21; f.price.value = 0;
+      await load();
+      const holder = document.createElement("div"); $("#create-result").replaceChildren(holder);
+      showMessage(r.member, holder);
+    } catch (err) { alert(err.message); }
+  };
+  $("#create-form").plan.onchange = e => { const f = $("#create-form"); if (e.target.value === "early") { f.days.value = 21; f.price.value = 0; } else if (e.target.value === "founding") { f.days.value = 365; f.price.value = DATA.offer.foundingPrice; } else if (e.target.value === "regular") { f.days.value = 365; f.price.value = DATA.offer.regularPrice; } else f.days.value = 365; };
+
+  $("#wl-csv").onclick = () => download("storybloom-waitlist.csv", csv(DATA.waitlist.map(w => ({ ...w, joined: fmt(w.at), meet: w.meet ? "yes" : "" })), ["joined", "name", "contact", "age", "country", "meet", "source"]));
+  $("#m-csv").onclick = () => download("storybloom-families.csv", csv(DATA.members.map(m => ({ ...m, until: fmt(m.until), devices: m.devices.length, status: m.revoked ? "off" : m.until > Date.now() ? "active" : "ended" })), ["code", "name", "phone", "email", "plan", "price", "until", "devices", "status", "note"]));
+  $("#wl-meet").onclick = () => {
+    const ppl = DATA.waitlist.filter(w => w.meet).map(w => w.name + " · " + w.contact);
+    ppl.length ? copy(ppl.join("\n")) : toast("No one has ticked the Meet box yet");
+  };
+  $("#hook").onclick = async () => { try { await api("registerWebhook"); toast("Ziina notifications connected"); } catch (e) { alert(e.message); } };
+
+  if (KEY) load().catch(() => logout());
+})();
+</script>
+</body>
+</html>

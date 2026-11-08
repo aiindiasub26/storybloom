@@ -3,17 +3,19 @@
 An offline learning-to-read app with bedtime stories, guided reading, games,
 hands-on activities and printables. Built as an installable web app (PWA).
 
-## Put it on your tablet / phone
-The app has to be opened from a web address **once** so it can save itself for offline use.
-1. It's hosted on GitHub Pages (see the repo's About link), or upload this folder to any static host, for example:
-   - **Netlify Drop**: go to app.netlify.com/drop and drag the `storybloom` folder in.
-   - or GitHub Pages, Cloudflare Pages, Vercel, etc.
-2. Open the address on the child's device in Safari (iPad/iPhone) or Chrome (Android).
-3. Wait for the "✅ Ready to use offline!" message (about 19 MB downloads in the background).
-4. Add it to the home screen: Safari → Share → *Add to Home Screen*; Chrome → ⋮ → *Install app*.
-5. From now on it opens full-screen and works with **no internet**.
+## Where it lives
+StoryBloom is sold and served at **unscrolled.me** (Netlify). Setup steps, settings and how the lock works: see [SETUP.md](SETUP.md).
 
-To try it on a computer: `python3 -m http.server` inside this folder, then open http://localhost:8000.
+| Folder | What it is |
+|---|---|
+| `site/` | The unscrolled.me website: StoryBloom page, thank-you, privacy, admin |
+| `site/app/` | The StoryBloom app itself (installable, works offline) |
+| `netlify/functions/` | Waitlist, Ziina checkout, code unlock, pass refresh, admin, renewal reminders |
+| `netlify/edge-functions/gate.js` | Only devices with a valid pass can download the app's content |
+| `legacy-pages/` | "We've moved" page for the old github.io address |
+| `dev/` | Local test server with a fake Ziina, and the end-to-end browser test |
+
+Families open **unscrolled.me/app**, unlock once with their code, wait for "✅ Ready to use offline!" and add it to the home screen.
 
 ## What's inside
 | Section | Contents |
@@ -30,10 +32,9 @@ To try it on a computer: `python3 -m http.server` inside this folder, then open 
 - Voices: ElevenLabs (via Higgsfield). Songs and sound effects: ElevenLabs. Illustrations and colouring pages: Higgsfield.
 - If a recorded sound effect can't load, a synthesised version plays instead.
 - Words without a recording fall back to the device's built-in voice.
-- Progress is saved on the device only. No accounts, no tracking, no ads, no internet needed.
-- After changing any files, run `python3 build-sw.py` so the offline cache updates.
-- After changing worksheets, rebuild the PDF packs: serve the folder on port 8765 and run `node build-pdfs.js` (needs Playwright).
-- GitHub Pages: pushing to `main` deploys automatically via `.github/workflows/pages.yml`.
+- Progress is saved on the device only. No child accounts, no tracking, no ads. Internet is only needed to unlock and for a quick check-in every few weeks.
+- The offline file list (`site/app/sw.js`) is rebuilt on every deploy by `scripts/build.mjs`.
+- After changing worksheets, rebuild the PDF packs with `scripts/build-pdfs.cjs` (needs Playwright; see the note at the top of the file).
 
 - Pictures and icons are custom illustrated stickers (assets/img/stickers) and hand-drawn SVG icons (js/icons.js); no emoji.
 - PDF packs print on plain white paper with light greyscale pictures to save ink.

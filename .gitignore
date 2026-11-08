@@ -1,3 +1,10 @@
 artifact.html
 __pycache__/
 *.raw
+node_modules/
+.netlify/
+dev/.data/
+dev/.keys.json
+site/app/js/pass-key.js
+
+site/app/sw.js

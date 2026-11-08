@@ -25,27 +25,8 @@
   <div id="splash" style="position:absolute;inset:0;z-index:99;background:#fbf6ec;display:grid;place-items:center;transition:opacity .5s;font-family:Fredoka,sans-serif;font-size:60px">🌼</div>
 </div>
 <div id="print-root"></div>
-<script src="js/data-stories.js"></script>
-<script src="js/data-reading.js"></script>
-<script src="js/data-activities.js"></script>
-<script src="js/word-bank.js"></script>
-<script src="js/icons.js"></script>
-<script src="js/sfx.js"></script>
-<script src="js/core.js"></script>
-<script src="js/stories.js"></script>
-<script src="js/reading.js"></script>
-<script src="js/activities.js"></script>
-<script src="js/print.js"></script>
-<script src="js/data-songs.js"></script>
-<script src="js/songs.js"></script>
-<script src="js/home.js"></script>
-<script>
-  if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("sw.js").then(reg => {
-      // tell the grown-up when everything is saved for offline use
-      navigator.serviceWorker.addEventListener("message", e => { if (e.data === "cached") toast("✅ Ready to use offline!", 3500); });
-    }).catch(() => {});
-  }
-</script>
+<!-- pass-key.js is written at build time; access.js checks the family's pass, then loads the app -->
+<script src="js/pass-key.js"></script>
+<script src="js/access.js"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
-// Builds the ready-made PDF packs in assets/print/ from the app's own worksheet makers.
-// Run with a local server on :8765:  node build-pdfs.js
+// Builds the ready-made PDF packs in site/app/assets/print/ from the app's own worksheet makers.
+// The app now needs a code: run `npm run dev`, unlock http://localhost:8888/app/ with a code from /admin,
+// then point the goto() below at that address (same browser profile) and run: node scripts/build-pdfs.cjs
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage();
@@ -33,7 +34,7 @@ const { chromium } = require('playwright');
     })));
     await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(300);
     await p.evaluate(() => { document.documentElement.style.background = '#fff'; document.body.style.background = '#fff'; });
-    await p.pdf({ path: 'assets/print/' + file, format: 'A4', printBackground: false });
+    await p.pdf({ path: 'site/app/assets/print/' + file, format: 'A4', printBackground: false });
     console.log(file);
   }
   await b.close();
