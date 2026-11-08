@@ -44,11 +44,23 @@ What's on the site:
    Then make the GitHub repository **private** (GitHub → *Settings* → *General* → *Danger zone* → *Change visibility*). Netlify keeps working; otherwise anyone can download the stories and songs straight from GitHub.
 
 ### Running early access
-- Parents join the waitlist on unscrolled.me/storybloom (with an "I'd join the Google Meet" tick box).
-- In /admin, tap **Give early access** next to a name → **Create code** → **Open in WhatsApp** (the message is written for you: code, link, 21 days, the Meet).
+- Parents join the waitlist on unscrolled.me/storybloom with their **email** (WhatsApp optional) and an "I'd join the Google Meet" tick box.
+- In /admin, tap **Approve & email code** next to a family, or **Approve all waiting**. Each family gets a 21-day code by email straight away, with the link, tablet steps and the Google Meet note.
+- No email set up yet, or a family without email? /admin shows a ready WhatsApp message with **Open in WhatsApp** instead.
 - After 21 days the app locks on its own, even offline, with a "your early access has ended" screen.
-- Want to keep a family going until the Google Meet? **+7 days** or **+ days…** in the families list.
+- Want to keep a family going until the Google Meet? **+7 days** or **+ days…** in the families list. **Email code again** resends it.
 - **Copy Google Meet invite list** gives you everyone who ticked the box.
+
+### Emails: hello@unscrolled.me for free (do this before approving families)
+Two free services, about 20 minutes, both only need DNS records where unscrolled.me is managed (Netlify DNS if you moved the domain there in step 3, otherwise your domain company):
+
+1. **Receive at hello@unscrolled.me → your Gmail (ImprovMX, free)**
+   improvmx.com → enter `unscrolled.me` and your Gmail address → add the two **MX** records and the **TXT** (SPF) record it shows → wait for the green ticks. Mail to hello@unscrolled.me now lands in Gmail. Free plan: 1 domain, 25 addresses, 500 forwarded emails a day. It forwards only; your own replies go from your Gmail address.
+2. **Send codes and reminders from hello@unscrolled.me (Resend, free)**
+   resend.com → *Domains* → add `unscrolled.me` → add the DNS records it shows (they sit on a `send.` subdomain, so they don't clash with ImprovMX) → *API keys* → create one with sending access.
+   In Netlify add `RESEND_API_KEY` (the key) and `EMAIL_FROM` = `StoryBloom <hello@unscrolled.me>`, then redeploy. Free plan: 3,000 emails a month, 100 a day.
+   Parents' replies go to hello@unscrolled.me, so they reach your Gmail through ImprovMX.
+3. In /admin the overview should now say **Email: on**. Approve yourself first (join the waitlist with your own email) to see the email.
 
 ---
 
@@ -66,10 +78,7 @@ What's on the site:
 
 When the 100 founding spots are gone the site switches to AED 79 by itself. Founding families keep AED 39 when they renew.
 
-### Optional: automatic emails
-Without email, codes show on the thank-you page and in /admin (send them on WhatsApp). To email codes and renewal reminders (14 and 3 days before the year ends):
-1. Create a free account at resend.com, add the domain `unscrolled.me` and add the DNS records it shows.
-2. Add `RESEND_API_KEY` and `EMAIL_FROM` (`StoryBloom <hello@unscrolled.me>`) in Netlify. Redeploy.
+Once sales are open, paid families get their code by email within seconds of paying (it also shows on the thank-you page), and everyone gets renewal reminders 14 and 3 days before their year ends.
 
 ---
 
@@ -87,7 +96,9 @@ Without email, codes show on the thank-you page and in /admin (send them on What
 | `FOUNDING_LIMIT` / `FOUNDING_PRICE` / `REGULAR_PRICE` | optional | Defaults 100 / 39 / 79 (AED) |
 | `MAX_DEVICES` | optional | Devices per code, default 3 |
 | `CHECKIN_DAYS` | optional | How long a device can stay offline before it must connect once, default 35 |
-| `RESEND_API_KEY` / `EMAIL_FROM` / `EMAIL_REPLY_TO` | optional | Automatic emails |
+| `RESEND_API_KEY` / `EMAIL_FROM` | for emails | Sends codes and reminders (see "Emails" above) |
+| `EMAIL_REPLY_TO` | optional | Where parents' replies go, default `hello@unscrolled.me` |
+| `EARLY_DAYS` | optional | Length of early access when you tap Approve, default 21 |
 
 ## How the lock works (in short)
 - A code unlocks a device and gives it a **signed pass**: who it belongs to, valid until when. Editing it breaks the signature.
@@ -96,6 +107,6 @@ Without email, codes show on the thank-you page and in /admin (send them on What
 - The stories, songs, pictures and printables are only downloaded by a device with a valid pass.
 
 ## For developers
-- `npm install`, then `npm run dev` runs the whole site locally on http://localhost:8888 with a fake Ziina (admin password `localadmin`; `SALES_MODE=founding npm run dev` to test buying).
+- `npm install`, then `npm run dev` runs the whole site locally on http://localhost:8888 with a fake Ziina and a fake email outbox at /__resend/outbox (admin password `localadmin`; `SALES_MODE=founding npm run dev` to test buying).
 - `npm test` runs the browser end-to-end check (needs Playwright).
 - App content changes: edit files in `site/app/`; the offline file list (`sw.js`) is rebuilt on every deploy.

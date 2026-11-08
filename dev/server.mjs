@@ -23,6 +23,8 @@ const env = {
   ZIINA_API_KEY: "local-test",
   ZIINA_WEBHOOK_SECRET: "local-secret",
   ADMIN_PASSWORD: "localadmin",
+  RESEND_API_BASE: SITE + "/__resend",
+  RESEND_API_KEY: "local-test",
   SALES_MODE: process.env.SALES_MODE || "waitlist"
 };
 for (const [k, v] of Object.entries(env)) if (process.env[k] === undefined) process.env[k] = v;
@@ -39,6 +41,9 @@ for (const f of await fs.readdir(path.join(root, "netlify", "functions"))) {
   if (mod.config && mod.config.schedule) routes["/__run/" + f.replace(/\.mjs$/, "")] = mod.default;
 }
 const gate = (await import(pathToFileURL(path.join(root, "netlify", "edge-functions", "gate.js")))).default;
+
+// ---- fake Resend: emails are kept in memory, see /__resend/outbox ----
+const outbox = [];
 
 // ---- fake Ziina ----
 const intents = new Map();
@@ -99,6 +104,8 @@ http.createServer(async (req, res) => {
   let response;
   try {
     if (url.pathname.startsWith("/__ziina")) response = await fakeZiina(req, url, raw);
+    else if (url.pathname === "/__resend/emails") { outbox.push({ ...JSON.parse(raw), at: Date.now() }); response = Response.json({ id: "email_" + outbox.length }); }
+    else if (url.pathname === "/__resend/outbox") response = Response.json(outbox);
     else if (routes[url.pathname]) response = await routes[url.pathname](request, {});
     else if (url.pathname.startsWith("/app/")) {
       const NEXT = Symbol("next");

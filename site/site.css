@@ -11,6 +11,7 @@
   --shadow: 4px 5px 0 var(--ink);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--read); font-size: 18px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; height: auto; display: block; }

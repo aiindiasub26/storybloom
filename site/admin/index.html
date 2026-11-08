@@ -47,9 +47,20 @@
       <p style="margin:14px 0 0" id="setup"></p>
     </div>
 
+    <div class="panel">
+      <h2>Early-access waitlist <span class="muted" id="wl-count"></span></h2>
+      <div class="toolbar">
+        <button class="btn small" id="wl-all">Approve all waiting</button>
+        <button class="btn small ghost" id="wl-csv">Download CSV</button>
+        <button class="btn small ghost" id="wl-meet">Copy Google Meet invite list</button>
+      </div>
+      <div id="wl-result"></div>
+      <div class="scroll"><table class="tbl" id="wl"></table></div>
+    </div>
+
     <div class="panel" id="create">
       <h2>Give a code</h2>
-      <p class="muted">For early-access families, gifts, or anyone who paid you another way. Then send them the WhatsApp message.</p>
+      <p class="muted">For anyone not on the waitlist: friends, gifts, or someone who paid you another way.</p>
       <form id="create-form">
         <div class="grid3">
           <div class="field"><label>Parent's name</label><input type="text" name="name" required></div>
@@ -62,19 +73,10 @@
           <div class="field"><label>Price paid (AED)</label><input type="number" name="price" value="0" min="0"></div>
         </div>
         <div class="field"><label>Note (only you see this)</label><input type="text" name="note" placeholder="e.g. school friend, joined via Instagram"></div>
-        <label class="check"><input type="checkbox" name="sendEmail"> Also email the code (needs email set up)</label>
+        <label class="check"><input type="checkbox" name="sendEmail" checked> Email the code to the parent (needs email set up in Netlify)</label>
         <button class="btn" type="submit">Create code</button>
       </form>
       <div id="create-result"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Early-access waitlist <span class="muted" id="wl-count"></span></h2>
-      <div class="toolbar">
-        <button class="btn small ghost" id="wl-csv">Download CSV</button>
-        <button class="btn small ghost" id="wl-meet">Copy Google Meet invite list</button>
-      </div>
-      <div class="scroll"><table class="tbl" id="wl"></table></div>
     </div>
 
     <div class="panel">
@@ -152,19 +154,41 @@
   }
 
   function renderWaitlist() {
-    const w = DATA.waitlist, codes = new Set(DATA.members.map(m => (m.phone || m.email || "").replace(/\s/g, "")));
-    $("#wl-count").textContent = "(" + w.length + ")";
-    $("#wl").innerHTML = `<tr><th>Joined</th><th>Name</th><th>WhatsApp / email</th><th>Age</th><th>Where</th><th>Meet</th><th>From</th><th></th></tr>` +
-      w.map((x, i) => `<tr><td>${fmt(x.at)}</td><td>${esc(x.name)}</td><td>${esc(x.contact)}</td><td>${esc(x.age)}</td><td>${esc(x.country)}</td><td>${x.meet ? "✓" : ""}</td><td class="muted">${esc(x.source)}</td>
-        <td class="acts">${codes.has(String(x.contact).replace(/\s/g, "")) ? '<span class="tag early">has code</span>' : `<button data-give="${i}">Give early access</button>`}</td></tr>`).join("");
+    const w = DATA.waitlist, waiting = w.filter(x => x.id && !x.code).length;
+    $("#wl-count").textContent = "(" + w.length + (waiting ? ", " + waiting + " waiting" : "") + ")";
+    $("#wl-all").hidden = !waiting;
+    $("#wl").innerHTML = `<tr><th>Joined</th><th>Name</th><th>Email</th><th>WhatsApp</th><th>Age</th><th>Where</th><th>Meet</th><th>From</th><th></th></tr>` +
+      w.map((x, i) => {
+        const email = x.email || (/@/.test(x.contact || "") ? x.contact : ""), phone = x.phone || (!/@/.test(x.contact || "") ? x.contact || "" : "");
+        const status = x.code ? `<span class="tag early">${esc(x.code)}</span><br><span class="${x.emailed ? "ok" : "muted"}">${x.emailed ? "emailed ✓" : "not emailed"}</span>`
+          : x.id ? `<button data-approve="${esc(x.id)}">Approve &amp; email code</button>` : `<button data-give="${i}">Give early access</button>`;
+        return `<tr><td>${fmt(x.at)}</td><td>${esc(x.name)}</td><td>${esc(email)}</td><td>${esc(phone)}</td><td>${esc(x.age)}</td><td>${esc(x.country)}</td><td>${x.meet ? "✓" : ""}</td><td class="muted">${esc(x.source)}</td><td class="acts">${status}</td></tr>`;
+      }).join("");
+    $("#wl").querySelectorAll("[data-approve]").forEach(b => b.onclick = () => approve("approve", { id: b.dataset.approve }, b));
     $("#wl").querySelectorAll("[data-give]").forEach(b => b.onclick = () => {
       const x = w[b.dataset.give], f = $("#create-form");
-      f.elements.name.value = x.name; const isMail = /@/.test(x.contact);
-      f.email.value = isMail ? x.contact : ""; f.phone.value = isMail ? "" : x.contact;
+      f.elements.name.value = x.name; const isMail = /@/.test(x.contact || "");
+      f.email.value = x.email || (isMail ? x.contact : ""); f.phone.value = x.phone || (isMail ? "" : x.contact || "");
       f.plan.value = "early"; f.days.value = 21; f.price.value = 0; f.note.value = [x.age && "age " + x.age, x.country, x.meet && "wants Meet"].filter(Boolean).join(", ");
       $("#create").scrollIntoView({ behavior: "smooth" });
     });
   }
+
+  async function approve(action, extra, btn) {
+    if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+    try {
+      const r = await api(action, extra);
+      await load();
+      const box = $("#wl-result"); box.innerHTML = "";
+      const sent = r.approved.filter(a => a.emailed).length, notSent = r.approved.filter(a => !a.emailed);
+      const head = document.createElement("p");
+      head.innerHTML = `<b>${r.approved.length} approved.</b> ${sent ? sent + " code" + (sent > 1 ? "s" : "") + " emailed. " : ""}${notSent.length ? notSent.length + " not emailed" + (DATA.emailReady ? "" : " (email isn't set up yet)") + ": send these on WhatsApp instead." : ""}`;
+      box.append(head);
+      notSent.forEach(a => { const d = document.createElement("div"); box.append(d); showMessage(a.member, d); });
+      toast(sent ? "Codes emailed" : "Approved");
+    } catch (e) { alert(e.message); if (btn) { btn.disabled = false; btn.textContent = "Approve & email code"; } }
+  }
+  $("#wl-all").onclick = () => { const n = DATA.waitlist.filter(x => x.id && !x.code).length; if (confirm("Approve all " + n + " waiting families and email their codes?")) approve("approveAll", {}, $("#wl-all")); };
 
   function renderMembers() {
     const q = $("#m-search").value.trim().toLowerCase(), now = Date.now(), max = DATA.settings.maxDevices;
@@ -175,12 +199,13 @@
       return `<tr><td><b>${esc(m.code)}</b></td><td>${esc(m.name)}<br><span class="muted">${esc(m.phone)} ${esc(m.email)}</span>${m.note ? `<br><span class="muted">${esc(m.note)}</span>` : ""}</td>
         <td><span class="tag ${esc(m.plan)}">${esc(PLAN[m.plan] || m.plan)}</span>${m.price ? `<br><span class="muted">AED ${esc(m.price)}</span>` : ""}</td>
         <td>${fmt(m.until)}<br>${state}</td><td>${m.devices.length} / ${max}</td>
-        <td class="acts" data-code="${esc(m.code)}"><button data-a="wa">WhatsApp message</button><button data-a="extend7">+7 days</button><button data-a="extend">+ days…</button><button data-a="resetDevices">Reset devices</button>${m.revoked ? '<button data-a="restore">Switch on</button>' : '<button data-a="revoke">Switch off</button>'}</td></tr>`;
+        <td class="acts" data-code="${esc(m.code)}">${m.email ? '<button data-a="resend">Email code again</button>' : ""}<button data-a="wa">WhatsApp message</button><button data-a="extend7">+7 days</button><button data-a="extend">+ days…</button><button data-a="resetDevices">Reset devices</button>${m.revoked ? '<button data-a="restore">Switch on</button>' : '<button data-a="revoke">Switch off</button>'}</td></tr>`;
     }).join("");
     $("#members").querySelectorAll("[data-a]").forEach(b => b.onclick = async () => {
       const code = b.parentNode.dataset.code, m = DATA.members.find(x => x.code === code), a = b.dataset.a;
       if (a === "wa") return showMessage(m);
       try {
+        if (a === "resend") { await api("resend", { code }); toast("Email sent"); return; }
         if (a === "extend7") await api("extend", { code, days: 7 });
         else if (a === "extend") { const days = Number(prompt("Add how many days?", "21")); if (!days) return; await api("extend", { code, days }); }
         else if (a === "revoke") { if (!confirm("Switch off " + code + "? The app locks next time that device goes online.")) return; await api("revoke", { code }); }
@@ -215,7 +240,7 @@
     try {
       const r = await api("create", data);
       if (r.emailed) toast("Code emailed");
-      f.reset(); f.days.value = 21; f.price.value = 0;
+      f.reset(); f.days.value = 21; f.price.value = 0; f.sendEmail.checked = true;
       await load();
       const holder = document.createElement("div"); $("#create-result").replaceChildren(holder);
       showMessage(r.member, holder);

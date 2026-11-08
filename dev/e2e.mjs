@@ -48,7 +48,7 @@ async function waitHome(pg, label) {
   await pg.waitForFunction(() => document.querySelector("#spots").textContent.includes("families"));
   ok(await pg.isVisible("#join") && !(await pg.isVisible("#buy")), "landing shows the waitlist, not the checkout");
   await pg.screenshot({ path: shots + "/landing-phone.png", fullPage: true });
-  await pg.fill("#w-name", "Sara Ahmed"); await pg.fill("#w-contact", "+971 50 123 4567");
+  await pg.fill("#w-name", "Sara Ahmed"); await pg.fill("#w-email", "sara@example.com"); await pg.fill("#w-phone", "+971 50 123 4567");
   await pg.selectOption("#w-age", "5"); await pg.selectOption("#w-country", "UAE");
   await pg.click("#waitlist-form button");
   await pg.waitForSelector(".done");
@@ -65,14 +65,15 @@ async function waitHome(pg, label) {
   await d.fill("#pw", "localadmin"); await d.click("#login-form button");
   await d.waitForSelector("#app:not([hidden])");
   ok((await d.textContent("#wl")).includes("Sara Ahmed"), "admin sees the waitlist");
-  await d.click("[data-give]");
-  ok(await d.inputValue("#create-form [name=phone]") === "+971 50 123 4567", "Give early access fills the form");
-  await d.click("#create-form button[type=submit]");
-  await d.waitForSelector("#create-result textarea");
-  const msg = await d.inputValue("#create-result textarea");
-  const code = msg.match(/BLOOM-[A-Z0-9]{4}-[A-Z0-9]{4}/)[0];
-  ok(/free for 21 days/.test(msg) && /Google Meet/.test(msg), "WhatsApp message is ready (" + code + ")");
-  ok(await d.getAttribute("#create-result a[href^='https://wa.me/971501234567']", "href") !== null, "Open in WhatsApp link uses the number");
+  await d.click("[data-approve]");
+  await d.waitForSelector("#wl .tag.early");
+  const code = (await d.textContent("#wl .tag.early")).trim();
+  ok(/^BLOOM-/.test(code) && (await d.textContent("#wl")).includes("emailed ✓"), "Approve creates a 21-day code and emails it (" + code + ")");
+  const outbox = await fetch(base + "/__resend/outbox").then(r => r.json());
+  const mail = outbox.find(e => e.to[0] === "sara@example.com");
+  ok(mail && mail.html.includes(code) && /early access/i.test(mail.subject) && /Google Meet/.test(mail.html) && mail.reply_to === "hello@unscrolled.me", "the email has the code, the Meet invite and replies go to hello@unscrolled.me");
+  const again = await fetch(base + "/api/admin", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": "localadmin" }, body: JSON.stringify({ action: "approveAll" }) });
+  ok(again.status === 404, "approving twice doesn't make a second code");
   await d.screenshot({ path: shots + "/admin.png", fullPage: true });
 
   // the app on a tablet: locked, unlock, offline
@@ -160,6 +161,8 @@ async function waitHome(pg, label) {
   await pg.screenshot({ path: shots + "/thanks-phone.png", fullPage: true });
   const again = await fetch(base + "/api/claim?pi=" + new URL(pg.url()).searchParams.get("pi")).then(r => r.json());
   ok(again.code === code, "opening the thank-you page twice gives the same code");
+  const paidMail = (await fetch(base + "/__resend/outbox").then(r => r.json())).filter(e => e.to[0] === "priya@example.com");
+  ok(paidMail.length === 1 && paidMail[0].html.includes(code), "the code is emailed once after paying");
   const st = await fetch(base + "/api/status").then(r => r.json());
   ok(st.foundingLeft === 99, "founding spots go down to 99");
   await pg.click("text=Open StoryBloom on this device");

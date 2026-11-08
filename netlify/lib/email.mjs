@@ -6,13 +6,13 @@ export async function sendEmail({ to, subject, html }) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !to) return { sent: false, reason: key ? "no address" : "email not set up" };
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch((process.env.RESEND_API_BASE || "https://api.resend.com") + "/emails", {
       method: "POST",
       headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: process.env.EMAIL_FROM || "StoryBloom <hello@unscrolled.me>",
         to: [to],
-        reply_to: process.env.EMAIL_REPLY_TO || undefined,
+        reply_to: process.env.EMAIL_REPLY_TO || "hello@unscrolled.me",
         subject,
         html
       })
@@ -46,6 +46,24 @@ export function welcomeEmail(m) {
 <p>Your code works on up to ${Number(process.env.MAX_DEVICES || 3)} devices and is active until <b>${fmt(m.until)}</b>.</p>`)
   };
 }
+
+export function earlyEmail(m) {
+  const open = siteUrl() + "/app/?code=" + encodeURIComponent(m.code);
+  const days = Math.round((m.until - m.created) / 86400000);
+  return {
+    subject: "Your StoryBloom early access 🌼",
+    html: wrap(`<p>Hi ${esc(m.name) || "there"},</p>
+<p>Thank you for joining StoryBloom early access! Here is your code:</p>
+<p style="font-size:28px;font-weight:bold;letter-spacing:2px;background:#fff3c4;border-radius:12px;padding:14px;text-align:center">${esc(m.code)}</p>
+<p><a href="${open}" style="display:inline-block;background:#2f2a3b;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open StoryBloom</a></p>
+<p><b>On your child's tablet:</b> open the link above in Safari (iPad) or Chrome (Android), wait for "Ready to use offline", then add it to the home screen. After that it works with no internet.</p>
+<p>Early access is free for <b>${days} days</b>, until ${fmt(m.until)}, on up to ${Number(process.env.MAX_DEVICES || 3)} devices.</p>
+<p>After that, I'd love you to join a 1-hour parents' Google Meet to hear what worked, what didn't, and what to build next. I'll send the invite. Founding-family spots open to early families first.</p>
+<p>Aswathi</p>`)
+  };
+}
+
+export const codeEmail = m => (m.plan === "early" ? earlyEmail(m) : welcomeEmail(m));
 
 export function renewEmail(m, daysLeft) {
   const link = siteUrl() + "/storybloom/?renew=" + encodeURIComponent(m.code);

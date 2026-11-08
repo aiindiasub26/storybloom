@@ -1,7 +1,7 @@
 // POST /api/ziina-webhook → Ziina tells us a payment changed. Backup for parents who close the tab before the thank-you page.
 import { json, getOrder, fulfil } from "../lib/core.mjs";
 import { getPaymentIntent, validSignature } from "../lib/ziina.mjs";
-import { sendEmail, welcomeEmail } from "../lib/email.mjs";
+import { sendEmail, codeEmail } from "../lib/email.mjs";
 
 export default async req => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -13,7 +13,7 @@ export default async req => {
   if (!order || order.status === "fulfilled") return json({ ok: true });
   const intent = await getPaymentIntent(evt.data.id); // re-check with Ziina rather than trusting the message
   const r = await fulfil(order, intent);
-  if (r.fresh) await sendEmail({ to: r.member.email, ...welcomeEmail(r.member) });
+  if (r.fresh) await sendEmail({ to: r.member.email, ...codeEmail(r.member) });
   return json({ ok: true });
 };
 export const config = { path: "/api/ziina-webhook" };

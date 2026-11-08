@@ -132,9 +132,10 @@
       <h3>Join early access</h3>
       <p class="muted" id="join-lead">Early access is free for 3 weeks. Then we'll meet on a 1-hour parents' Google Meet to hear what worked, and founding spots open to early families first.</p>
       <form id="waitlist-form" novalidate>
+        <div class="field"><label for="w-name">Your name</label><input type="text" id="w-name" name="name" autocomplete="name" required></div>
         <div class="row2">
-          <div class="field"><label for="w-name">Your name</label><input type="text" id="w-name" name="name" autocomplete="name" required></div>
-          <div class="field"><label for="w-contact">WhatsApp or email</label><input type="text" id="w-contact" name="contact" autocomplete="email" required></div>
+          <div class="field"><label for="w-email">Email (your code arrives here)</label><input type="email" id="w-email" name="email" autocomplete="email" required></div>
+          <div class="field"><label for="w-phone">WhatsApp (optional)</label><input type="tel" id="w-phone" name="phone" autocomplete="tel"></div>
         </div>
         <div class="row2">
           <div class="field"><label for="w-age">Child's age</label>
@@ -236,11 +237,11 @@
     e.preventDefault();
     const f = e.target, m = $("#w-msg"), btn = f.querySelector("button");
     const data = Object.fromEntries(new FormData(f)); data.meet = f.meet.checked; data.source = qs.get("utm_source") || qs.get("src") || document.referrer.replace(/^https?:\/\//, "").split("/")[0];
-    if (!data.name.trim() || !data.contact.trim()) { m.className = "formmsg err"; m.textContent = "Please add your name and WhatsApp or email."; return; }
+    if (!data.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())) { m.className = "formmsg err"; m.textContent = "Please add your name and a valid email, so we can send your code."; return; }
     btn.disabled = true; btn.textContent = "Adding you…";
     const r = await post("/api/waitlist", data);
     if (r.ok) {
-      f.outerHTML = `<div class="done"><img src="/img/bloom.svg" width="120" height="120" alt="" style="margin:0 auto"><h3>You're on the list, ${data.name.trim().split(" ")[0].replace(/[<>&]/g, "")}!</h3><p class="muted">We'll message you with your early-access code. Follow <a href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a> for a peek inside.</p></div>`;
+      f.outerHTML = `<div class="done"><img src="/img/bloom.svg" width="120" height="120" alt="" style="margin:0 auto"><h3>You're on the list, ${data.name.trim().split(" ")[0].replace(/[<>&]/g, "")}!</h3><p class="muted">When your spot opens, your early-access code arrives by email. Follow <a href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a> for a peek inside.</p></div>`;
     } else { btn.disabled = false; btn.textContent = "Join early access"; m.className = "formmsg err"; m.textContent = r.error || "Something went wrong. Please try again."; }
   });
 

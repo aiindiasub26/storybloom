@@ -1,8 +1,8 @@
 // POST /api/admin {action, …} with header x-admin-key → the owner's dashboard actions.
 import { json, body, clean, cfg, DAY, offer, refreshStats, createMember, getMember, saveMember, normCode, siteUrl } from "../lib/core.mjs";
-import { listJSON } from "../lib/store.mjs";
+import { listJSON, store } from "../lib/store.mjs";
 import { registerWebhook, safeEqual } from "../lib/ziina.mjs";
-import { sendEmail, welcomeEmail } from "../lib/email.mjs";
+import { sendEmail, codeEmail } from "../lib/email.mjs";
 
 export default async req => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -29,8 +29,28 @@ export default async req => {
       const plan = ["early", "founding", "regular", "gift"].includes(b.plan) ? b.plan : "gift";
       const m = await createMember({ name: b.name, email: b.email, phone: b.phone, plan, price: Number(b.price) || 0, source: "admin", days, note: b.note });
       let emailed = false;
-      if (b.sendEmail && m.email) emailed = (await sendEmail({ to: m.email, ...welcomeEmail(m) })).sent;
+      if (b.sendEmail && m.email) emailed = (await sendEmail({ to: m.email, ...codeEmail(m) })).sent;
       return json({ member: m, emailed, link: siteUrl() + "/app/?code=" + m.code });
+    }
+    case "approve": case "approveAll": {
+      const days = Math.max(1, Math.min(365, Number(process.env.EARLY_DAYS || 21)));
+      const waiting = (await listJSON("waitlist/")).filter(w => w.id && !w.code && (b.action === "approveAll" || w.id === b.id));
+      if (!waiting.length) return json({ error: b.action === "approveAll" ? "No one is waiting." : "That sign-up was not found or already has a code." }, 404);
+      const done = [];
+      for (const w of waiting) {
+        const m = await createMember({ name: w.name, email: w.email || (/@/.test(w.contact || "") ? w.contact : ""), phone: w.phone || (!/@/.test(w.contact || "") ? w.contact : ""),
+          plan: "early", price: 0, source: "waitlist", days, note: [w.age && "age " + w.age, w.country, w.meet && "wants Meet"].filter(Boolean).join(", ") });
+        const r = m.email ? await sendEmail({ to: m.email, ...codeEmail(m) }) : { sent: false, reason: "no email" };
+        await store().setJSON("waitlist/" + w.id, { ...w, code: m.code, approvedAt: Date.now(), emailed: r.sent, emailError: r.sent ? "" : r.reason });
+        done.push({ member: m, emailed: r.sent, reason: r.reason });
+      }
+      return json({ approved: done });
+    }
+    case "resend": {
+      const m = code && (await getMember(code));
+      if (!m || !m.email) return json({ error: "No email address for this code." }, 404);
+      const r = await sendEmail({ to: m.email, ...codeEmail(m) });
+      return r.sent ? json({ ok: true }) : json({ error: "Email not sent: " + r.reason }, 502);
     }
     case "extend": case "revoke": case "restore": case "resetDevices": {
       const m = code && (await getMember(code));
