@@ -773,5 +773,81 @@ window.SONGS = {
 ],
 "name": "Verse 2"
 }
+],
+"count-with-me": [
+{
+"ms": 7800,
+"lines": [
+"Ready? Let's count!"
+],
+"name": "Intro"
+},
+{
+"ms": 16900,
+"lines": [
+"One big camel walking in the sun,",
+"Two little dhows, and the sailing's begun!",
+"Three proud falcons flying up so high,",
+"Four tall palm trees waving at the sky."
+],
+"name": "Verse 1"
+},
+{
+"ms": 11900,
+"lines": [
+"Count with me, count with me,",
+"One, two, three, four, five,",
+"Six, seven, eight, nine, ten,",
+"Let's count it all again!"
+],
+"name": "Chorus"
+},
+{
+"ms": 16900,
+"lines": [
+"Five shiny seashells sleeping on the sand,",
+"Six sweet dates resting in my hand,",
+"Seven little lanterns glowing warm and bright,",
+"Eight twinkling stars saying hello, night!"
+],
+"name": "Verse 2"
+},
+{
+"ms": 11900,
+"lines": [
+"Count with me, count with me,",
+"One, two, three, four, five,",
+"Six, seven, eight, nine, ten,",
+"Let's count it all again!"
+],
+"name": "Chorus 2"
+},
+{
+"ms": 16900,
+"lines": [
+"Nine happy friends holding hands in a line,",
+"Ten little fingers, wiggling, all of them mine!",
+"Count them on your fingers, count them on your toes,",
+"Count them everywhere that you go!"
+],
+"name": "Verse 3"
+},
+{
+"ms": 11900,
+"lines": [
+"Count with me, count with me,",
+"One, two, three, four, five,",
+"Six, seven, eight, nine, ten,",
+"Let's count it all again!"
+],
+"name": "Chorus 3"
+},
+{
+"ms": 8200,
+"lines": [
+"One to ten, we did it! Hooray!"
+],
+"name": "Outro"
+}
 ]
 };

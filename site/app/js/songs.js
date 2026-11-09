@@ -8,6 +8,7 @@
     "under-the-sea": { t: "Swim With Me", c: "#4fb7b3", kind: "Dance" },
     "sight-word-shake": { t: "Sight Word Shake", c: "#f29bb8", kind: "Learn" },
     "rainbow-colours": { t: "Rainbow Colours", c: "#9b7fd1", kind: "Learn" },
+    "count-with-me": { t: "Count With Me", c: "#e8a917", kind: "Learn" },
     "five-monkeys": { t: "Five Little Monkeys", c: "#5b9bd5", kind: "Rhyme" },
     "wheels-on-the-bus": { t: "The Wheels on the Bus", c: "#5b9bd5", kind: "Rhyme" },
     "old-macdonald": { t: "Old MacDonald", c: "#5b9bd5", kind: "Rhyme" },
