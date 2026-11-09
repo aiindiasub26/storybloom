@@ -22,10 +22,11 @@
   <filter id="pencil"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>
 </svg>
 <div id="stage">
-  <div id="splash" style="position:absolute;inset:0;z-index:99;background:#fbf6ec;display:grid;place-items:center;transition:opacity .5s"><img src="assets/img/bloom.svg" width="340" height="340" alt="StoryBloom"></div>
+  <div id="splash" style="position:absolute;top:0;right:0;bottom:0;left:0;z-index:99;background:#fbf6ec;display:grid;place-items:center;transition:opacity .5s"><img src="assets/img/bloom.svg" width="340" height="340" alt="StoryBloom"></div>
 </div>
 <div id="print-root"></div>
 <!-- pass-key.js is written at build time; access.js checks the family's pass, then loads the app -->
+<script src="js/compat.js"></script>
 <script src="js/pass-key.js"></script>
 <script src="js/access.js"></script>
 </body>

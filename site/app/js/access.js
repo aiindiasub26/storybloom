@@ -163,7 +163,7 @@
     if (document.getElementById("sb-lock-css")) return;
     const s = document.createElement("style"); s.id = "sb-lock-css";
     s.textContent = `
-#sb-lock{position:fixed;inset:0;z-index:1000;background:#fbf6ec;display:grid;place-items:center;padding:24px;font-family:Fredoka,Andika,system-ui,sans-serif;color:#2f2a3b;touch-action:manipulation;user-select:text;-webkit-user-select:text;overflow:auto}
+#sb-lock{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1000;background:#fbf6ec;display:grid;place-items:center;padding:24px;font-family:Fredoka,Andika,system-ui,sans-serif;color:#2f2a3b;touch-action:manipulation;user-select:text;-webkit-user-select:text;overflow:auto}
 #sb-lock .card{width:min(460px,100%);background:#fff;border:3px solid #2f2a3b;border-radius:28px 34px 30px 32px;box-shadow:6px 8px 0 #2f2a3b;padding:30px 26px;text-align:center}
 #sb-lock .flower{display:block;margin:-6px auto 0;width:120px;height:120px}
 #sb-lock h1{font-size:30px;margin:10px 0 6px}
