@@ -13,6 +13,7 @@ What's on the site:
 | unscrolled.me/thanks | Shown after a Ziina payment, with the family's code |
 | unscrolled.me/privacy | Privacy & refund policy |
 | unscrolled.me/setup-keys | Makes the secret values for step 2 (one time) |
+| aiindiasub26.github.io/storybloom | Family copy for your own children: always unlocked (GitHub Pages) |
 
 ---
 
@@ -39,9 +40,11 @@ What's on the site:
    - Open the link on your daughter's tablet, wait for "Ready to use offline", add it to the home screen.
    - Switch on airplane mode and open it again.
 
-5. **Retire the old GitHub address**
-   Merge the pull request into `main`. The old `aiindiasub26.github.io/storybloom` address then shows "StoryBloom has moved" and clears the old free copy from devices that open it.
-   Then make the GitHub repository **private** (GitHub → *Settings* → *General* → *Danger zone* → *Change visibility*). Netlify keeps working; otherwise anyone can download the stories and songs straight from GitHub.
+5. **Both versions update together**
+   Everything lives on the `main` branch. Every change pushed to `main` updates:
+   - **unscrolled.me** (Netlify, production branch `main`): the paid version with codes, and
+   - **aiindiasub26.github.io/storybloom** (GitHub Pages): the **family copy** for your own children, always unlocked, no code, works offline.
+   Keep the family-copy link to yourself: anyone who has it can use StoryBloom free. (GitHub Pages needs the project to stay public on GitHub's free plan.)
 
 ### Running early access
 - Parents join the waitlist on unscrolled.me/storybloom with their **email** (WhatsApp optional) and an "I'd join the Google Meet" tick box.

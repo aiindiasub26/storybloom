@@ -1,10 +1,10 @@
-# The app now lives on unscrolled.me (Netlify). This publishes only a "we've moved" page
-# to the old github.io address, which also clears the old offline copy from devices.
-name: Deploy moved notice to GitHub Pages
+# GitHub Pages: the family copy of StoryBloom (always unlocked, works offline) at
+# aiindiasub26.github.io/storybloom. Built from the same app as unscrolled.me, so every
+# push to main updates both: Netlify (unscrolled.me) and this copy.
+name: Deploy family copy to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: [legacy-pages/**, .github/workflows/pages.yml]
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,11 +21,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/build.mjs --family _site
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: legacy-pages
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

@@ -12,7 +12,7 @@ StoryBloom is the first product on **unscrolled.me** (Netlify), at unscrolled.me
 | `site/app/` | The StoryBloom app itself (installable, works offline) |
 | `netlify/functions/` | Waitlist, Ziina checkout, code unlock, pass refresh, admin, renewal reminders |
 | `netlify/edge-functions/gate.js` | Only devices with a valid pass can download the app's content |
-| `legacy-pages/` | "We've moved" page for the old github.io address |
+| `.github/workflows/pages.yml` | Builds the always-unlocked family copy for aiindiasub26.github.io/storybloom |
 | `dev/` | Local test server with a fake Ziina, and the end-to-end browser test |
 
 Families open **unscrolled.me/app**, unlock once with their code, wait for "✅ Ready to use offline!" and add it to the home screen.

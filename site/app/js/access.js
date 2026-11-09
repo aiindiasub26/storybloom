@@ -117,6 +117,7 @@
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       offlineSetup();
     }
+    if (p.p === "family") return;
     if (window.ACCESS.daysLeft <= WARN_DAYS) banner(p);
     setInterval(async () => { const st = await status(); if (st.state !== "ok") lock(st); }, 10 * 60 * 1000);
   }
@@ -147,6 +148,9 @@
   // Shown inside the Grown-ups corner (see home.js).
   window.accessInfo = function () {
     const a = window.ACCESS; if (!a || !window.h) return null;
+    if (a.plan === "family") return h("div", { class: "form-row", style: { flexDirection: "column", alignItems: "flex-start", gap: "4px" } },
+      h("b", {}, "StoryBloom family copy"),
+      h("span", {}, ls.get(OFF) === "ready" ? "Offline: ready on this device ✓" : "Offline: not saved yet. Keep StoryBloom open on Wi-Fi until it says Ready."));
     return h("div", { class: "form-row", style: { flexDirection: "column", alignItems: "flex-start", gap: "4px" } },
       h("b", {}, "StoryBloom plan: " + (PLAN[a.plan] || "Active")),
       h("span", {}, "Active until " + fmt(a.until) + " · Code " + a.code),
@@ -257,6 +261,8 @@
   }
 
   async function boot() {
+    // Family copy (GitHub Pages): always unlocked, no code, no expiry.
+    if (window.SB_FREE) return start({ p: "family", c: "", u: Date.now() + 3650 * DAY, k: Date.now() + 3650 * DAY, i: Date.now() });
     const qs = new URLSearchParams(location.search);
     const urlCode = qs.get("code");
     if (urlCode) {
@@ -275,6 +281,6 @@
     if (st.state === "ok") start(st.p); else lock(st);
   }
 
-  window.addEventListener("online", () => { if (started) refresh().catch(() => {}); });
+  window.addEventListener("online", () => { if (started && !window.SB_FREE) refresh().catch(() => {}); });
   boot();
 })();
