@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank you! · StoryBloom</title><meta name="robots" content="noindex">
+<link rel="icon" href="/img/icon-192.png"><link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">unscrolled<span>.</span></a><nav><a class="ig" href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a></nav></div></header>
+<main class="page"><div class="wrap">
+  <div class="card" id="box" style="text-align:center;position:relative"><div class="tape"></div>
+    <img src="/img/bloom.svg" width="130" height="130" alt="" style="margin:0 auto">
+    <h1 style="font-size:38px">Confirming your payment…</h1>
+    <p class="muted">This takes a few seconds. Please keep this page open.</p>
+  </div>
+</div></main>
+<script>
+(function () {
+  const pi = new URLSearchParams(location.search).get("pi");
+  const box = document.getElementById("box");
+  const esc = s => String(s).replace(/[<>&"]/g, "");
+  const fmt = ms => new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  let tries = 0;
+  async function poll() {
+    tries++;
+    let r = {};
+    try { r = await fetch("/api/claim?pi=" + encodeURIComponent(pi || ""), { cache: "no-store" }).then(x => x.json()); } catch (e) {}
+    if (r.status === "completed") return show(r);
+    if (r.status === "failed" || r.status === "unknown" || r.status === "mismatch" || tries > 40) return problem(r.status);
+    setTimeout(poll, 2500);
+  }
+  function show(r) {
+    const renew = r.kind === "renew";
+    box.innerHTML = `<div class="tape"></div><img src="/img/bloom.svg" width="130" height="130" alt="" style="margin:0 auto">
+      <h1 style="font-size:38px">${renew ? "Renewed, thank you!" : r.plan === "founding" ? "Welcome, founding family!" : "Welcome to StoryBloom!"}</h1>
+      <p class="muted">${renew ? "Your code carries on until " + fmt(r.until) + ". Open StoryBloom once while online and it updates by itself." : "Here's your code. It works on up to 3 devices until " + fmt(r.until) + "."}</p>
+      <div class="codebox">${esc(r.code)}</div>
+      <p class="muted" style="font-size:16px">${r.emailed ? "We've also emailed it to you." : "Take a screenshot so you have it handy."}</p>
+      <a class="btn" href="/app/?code=${encodeURIComponent(r.code)}">Open StoryBloom on this device</a>
+      <div style="text-align:left;margin-top:28px">
+        <h2 style="font-size:24px">Putting it on your child's tablet</h2>
+        <ol>
+          <li><b>iPad or iPhone:</b> open <b>unscrolled.me/app</b> in Safari, tap Share → <b>Add to Home Screen</b>, then open StoryBloom <b>from the new icon</b>. The home-screen app keeps its own storage, separate from Safari, so unlock it there.<br><b>Android:</b> open <b>unscrolled.me/app</b> in Chrome, then ⋮ → Install app, and open it from the icon.</li>
+          <li>Type your code and tap Unlock.</li>
+          <li>Keep it open on Wi-Fi while it shows <b>"Saving for offline…"</b>, until it says <b>"Ready to use offline"</b> (about a minute).</li>
+          <li>Test it: switch on airplane mode and open StoryBloom.</li>
+        </ol>
+        <p class="muted">Questions? Email <a href="mailto:unscrolled.me@gmail.com">unscrolled.me@gmail.com</a> or DM <a href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a>.</p>
+      </div>`;
+  }
+  function problem(s) {
+    box.innerHTML = `<div class="tape pink"></div><img src="/img/bloom.svg" width="110" height="110" alt="" style="margin:0 auto">
+      <h1 style="font-size:34px">${s === "failed" ? "The payment didn't go through" : "We're still checking your payment"}</h1>
+      <p class="muted">${s === "failed" ? "Nothing was charged. You can try again from the pricing section." : "If money left your account, don't worry: your code will reach you by email. You can also email unscrolled.me@gmail.com or DM us on Instagram with your name and we'll sort it out."}</p>
+      <a class="btn ghost" href="/storybloom/#pricing">Back to StoryBloom</a>`;
+  }
+  if (!pi) problem("unknown"); else poll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fbf6ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="StoryBloom">
+<title>StoryBloom</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icon-192.png">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<!-- shared SVG filters: watercolour bleed + pencil grain -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wc"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="3"/><feDisplacementMap in="SourceGraphic" scale="40"/></filter>
+  <filter id="pencil-sm"><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="1" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0.55"/></filter>
+  <filter id="pencil"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>
+</svg>
+<div id="stage">
+  <div id="splash" style="position:absolute;inset:0;z-index:99;background:#fbf6ec;display:grid;place-items:center;transition:opacity .5s"><img src="assets/img/bloom.svg" width="340" height="340" alt="StoryBloom"></div>
+</div>
+<div id="print-root"></div>
+<!-- pass-key.js is written at build time; access.js checks the family's pass, then loads the app -->
+<script src="js/pass-key.js"></script>
+<script src="js/access.js"></script>
+</body>
+</html>

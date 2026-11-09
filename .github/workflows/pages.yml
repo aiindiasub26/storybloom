@@ -1,5 +1,7 @@
-# Publishes the app to GitHub Pages on every push to main.
-name: Deploy to GitHub Pages
+# GitHub Pages: the family copy of StoryBloom (always unlocked, works offline) at
+# aiindiasub26.github.io/storybloom. Built from the same app as unscrolled.me, so every
+# push to main updates both: Netlify (unscrolled.me) and this copy.
+name: Deploy family copy to GitHub Pages
 on:
   push:
     branches: [main]
@@ -19,13 +21,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Refresh offline file list
-        run: python3 build-sw.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/build.mjs --family _site
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

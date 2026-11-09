@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set-up keys · unscrolled.</title><meta name="robots" content="noindex">
+<link rel="icon" href="/img/icon-192.png"><link rel="stylesheet" href="/site.css">
+<style>textarea{min-height:120px;font:14px ui-monospace,monospace} .k{margin-bottom:22px}</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">unscrolled<span>.</span></a></div></header>
+<main class="page"><div class="wrap"><div class="card">
+  <h1 style="font-size:34px">One-time set-up values</h1>
+  <p class="muted">These are made here in your browser and never sent anywhere. Copy each one into Netlify (Site configuration, then Environment variables), then close this page. Each refresh makes new ones, so only do this once.</p>
+  <div class="k"><label class="field"><b>PASS_PRIVATE_JWK</b> (the secret key that signs StoryBloom passes)</label><textarea id="jwk" readonly></textarea><button class="btn small" data-c="jwk">Copy</button></div>
+  <div class="k"><label class="field"><b>ADMIN_PASSWORD</b> (your login for unscrolled.me/admin; you can also choose your own, 8+ characters)</label><input type="text" id="pw" readonly><button class="btn small" data-c="pw" style="margin-top:8px">Copy</button></div>
+  <div class="k"><label class="field"><b>ZIINA_WEBHOOK_SECRET</b> (only needed later, when you switch on payments)</label><input type="text" id="wh" readonly><button class="btn small" data-c="wh" style="margin-top:8px">Copy</button></div>
+  <p class="muted">Keep PASS_PRIVATE_JWK safe. If you ever change it, every family will need to type their code again once.</p>
+</div></div></main>
+<script>
+(async function () {
+  const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
+  const kp = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const jwk = await crypto.subtle.exportKey("jwk", kp.privateKey);
+  document.getElementById("jwk").value = JSON.stringify({ kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y, d: jwk.d });
+  document.getElementById("pw").value = rnd(4) + "-" + rnd(4) + "-" + rnd(4);
+  document.getElementById("wh").value = rnd(32);
+  document.querySelectorAll("[data-c]").forEach(b => b.onclick = async () => {
+    const v = document.getElementById(b.dataset.c).value;
+    try { await navigator.clipboard.writeText(v); b.textContent = "Copied ✓"; } catch (e) { prompt("Copy this:", v); }
+  });
+})();
+</script>
+</body>
+</html>
