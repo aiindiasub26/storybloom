@@ -11,7 +11,7 @@
     home.append(h("div", { class: "home-head" },
       h("div", {}, h("div", { class: "logo" }, cutoutFancy("StoryBloom", 54)), h("div", { class: "hand", style: { fontSize: "30px", marginLeft: "10px", marginTop: "2px" } }, greet)),
       h("div", { class: "home-tools" },
-        h("button", { class: "star-count", onclick: openStickers, title: "My Sticker Book" }, icon("star", 26), " " + APP.stars + " · Stickers"),
+        h("button", { class: "star-count", onclick: openStickers, title: "My Sticker Book", "aria-label": "Sticker book: " + APP.stars + " stars" }, icon("star", 22), " " + APP.stars),
         h("button", { class: "icon-btn", title: "Grown-ups", "aria-label": "Grown-ups settings", onclick: openGrownups }, icon("gear", 32)))));
 
     const tiles = h("div", { class: "tiles" });

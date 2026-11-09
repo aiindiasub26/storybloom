@@ -6,7 +6,6 @@
     "if-youre-happy": { t: "If You're Happy and You Know It", c: "#f6a04d", kind: "Dance" },
     "camel-shuffle": { t: "Camel Shuffle", c: "#f6a04d", kind: "Dance" },
     "under-the-sea": { t: "Swim With Me", c: "#4fb7b3", kind: "Dance" },
-    "letter-train": { t: "The Letter Sound Train", c: "#e8a917", kind: "Learn" },
     "sight-word-shake": { t: "Sight Word Shake", c: "#f29bb8", kind: "Learn" },
     "rainbow-colours": { t: "Rainbow Colours", c: "#9b7fd1", kind: "Learn" },
     "five-monkeys": { t: "Five Little Monkeys", c: "#5b9bd5", kind: "Rhyme" },

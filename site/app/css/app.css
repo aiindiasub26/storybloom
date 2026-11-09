@@ -96,8 +96,10 @@ img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
 .home-head { position: absolute; left: 36px; top: 26px; right: 36px; display: flex; align-items: center; justify-content: space-between; z-index: 4; }
 .logo { display: flex; gap: 4px; transform: rotate(-2deg); }
 .logo span { font-size: 54px; padding: 0 10px; box-shadow: 3px 4px 0 rgba(0, 0, 0, .2); }
-.home-tools { display: flex; gap: 14px; align-items: center; }
-.star-count { font-family: var(--ui); font-weight: 700; font-size: 28px; background: #fff; border: 3px solid var(--ink); border-radius: 40px; padding: 6px 18px; box-shadow: 3px 4px 0 var(--ink); }
+.home-tools { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+.home-head > div:first-child { min-width: 0; }
+.home-tools .icon-btn { width: 54px; height: 54px; }
+.star-count { font-family: var(--ui); font-weight: 700; font-size: 22px; background: #fff; border: 3px solid var(--ink); border-radius: 40px; padding: 4px 13px; box-shadow: 3px 4px 0 var(--ink); white-space: nowrap; }
 .icon-btn { width: 62px; height: 62px; border-radius: 50%; background: #fff; border: 3px solid var(--ink); box-shadow: 3px 4px 0 var(--ink); font-size: 28px; display: grid; place-items: center; }
 
 .tiles { position: absolute; left: 36px; right: 36px; top: 130px; bottom: 36px; display: grid; gap: 26px;

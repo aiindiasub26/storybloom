@@ -62,7 +62,7 @@
     if (key && !S.done[key]) { S.done[key] = 1; newSticker = STICKERS[S.stickers.length % STICKERS.length]; S.stickers.push(newSticker); }
     save(); updateStarCount(); return newSticker;
   };
-  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => { e.innerHTML = ""; e.append(icon("star", 26), " " + S.stars + " · Stickers"); });
+  window.updateStarCount = () => document.querySelectorAll(".star-count").forEach(e => { e.innerHTML = ""; e.append(icon("star", 22), " " + S.stars); e.setAttribute("aria-label", "Sticker book: " + S.stars + " stars"); });
 
   /* ---------------- audio: clips, words, narration ---------------- */
   const AUD = "assets/audio/";
