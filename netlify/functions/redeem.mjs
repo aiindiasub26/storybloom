@@ -13,7 +13,7 @@ export default async req => {
   if (state === "expired") return json({ status: "expired", error: "This code's year has ended.", renewUrl: siteUrl() + "/storybloom/?renew=" + m.code }, 403);
   if (attachDevice(m, device)) return json({ status: "device_limit", error: "This code is already on the maximum number of devices. Message us and we'll reset it." }, 403);
   await saveMember(m);
-  const p = await issuePass(m, device);
+  const p = await issuePass(m, device, req);
   return json({ status: "ok", pass: p.token, serverTime: Date.now() }, 200, { "Set-Cookie": p.cookie });
 };
 export const config = { path: "/api/redeem" };

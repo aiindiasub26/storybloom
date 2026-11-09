@@ -90,13 +90,16 @@ export async function offer() {
 }
 
 /* ---------- passes ---------- */
-export async function issuePass(m, device) {
+export async function issuePass(m, device, req) {
   const key = privateKey();
   if (!key) throw new Error("PASS_PRIVATE_JWK is not set");
   const now = Date.now();
   const payload = { c: m.code, d: device, p: m.plan, u: m.until, k: Math.min(m.until, now + cfg().checkinDays * DAY), i: now };
   const token = await signPass(payload, key);
-  const secure = siteUrl().startsWith("https") ? "; Secure" : "";
+  // Secure only when this request really came over https: on plain http (e.g. a new domain before its
+  // certificate is ready) a Secure cookie would be dropped and the app's content would stay locked.
+  const proto = req ? (req.headers.get("x-forwarded-proto") || new URL(req.url).protocol.replace(":", "")) : "https";
+  const secure = proto === "https" ? "; Secure" : "";
   const maxAge = Math.max(60, Math.floor((payload.k - now) / 1000));
   const cookie = `sb_pass=${token}; Path=/app; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${secure}`;
   return { token, payload, cookie };
