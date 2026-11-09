@@ -51,16 +51,18 @@ What's on the site:
 - Want to keep a family going until the Google Meet? **+7 days** or **+ days…** in the families list. **Email code again** resends it.
 - **Copy Google Meet invite list** gives you everyone who ticked the box.
 
-### Emails: hello@unscrolled.me for free (do this before approving families)
-Two free services, about 20 minutes, both only need DNS records where unscrolled.me is managed (Netlify DNS if you moved the domain there in step 3, otherwise your domain company):
+### Emails from unscrolled.me@gmail.com (do this before approving families)
+Codes and renewal reminders are sent automatically from **unscrolled.me@gmail.com**, and parents' replies land in that inbox. Gmail needs an **app password** (a separate 16-letter password just for StoryBloom; your normal Gmail password is never used):
 
-1. **Receive at hello@unscrolled.me → your Gmail (ImprovMX, free)**
-   improvmx.com → enter `unscrolled.me` and your Gmail address → add the two **MX** records and the **TXT** (SPF) record it shows → wait for the green ticks. Mail to hello@unscrolled.me now lands in Gmail. Free plan: 1 domain, 25 addresses, 500 forwarded emails a day. It forwards only; your own replies go from your Gmail address.
-2. **Send codes and reminders from hello@unscrolled.me (Resend, free)**
-   resend.com → *Domains* → add `unscrolled.me` → add the DNS records it shows (they sit on a `send.` subdomain, so they don't clash with ImprovMX) → *API keys* → create one with sending access.
-   In Netlify add `RESEND_API_KEY` (the key) and `EMAIL_FROM` = `StoryBloom <hello@unscrolled.me>`, then redeploy. Free plan: 3,000 emails a month, 100 a day.
-   Parents' replies go to hello@unscrolled.me, so they reach your Gmail through ImprovMX.
-3. In /admin the overview should now say **Email: on**. Approve yourself first (join the waitlist with your own email) to see the email.
+1. Sign in to Google as **unscrolled.me@gmail.com** → myaccount.google.com → **Security**.
+2. Turn on **2-Step Verification** if it isn't on (Google requires it for app passwords).
+3. Go to **myaccount.google.com/apppasswords** → name it `StoryBloom` → **Create** → copy the 16-letter password.
+4. Netlify → your project → **Project configuration → Environment variables → Add a variable → Add a single variable**:
+   key `GMAIL_APP_PASSWORD`, value = the 16 letters, tick **Contains secret values** → **Create variable**.
+5. **Deploys → Trigger deploy → Deploy project**.
+6. In /admin the overview now says **Email: on, sending from unscrolled.me@gmail.com**. Join the waitlist with another email of yours and approve it to see what parents get.
+
+Gmail lets a personal account send about 500 emails a day, plenty for early access. If you ever change the Google password or remove the app password, create a new one and update the variable.
 
 ---
 
@@ -96,8 +98,9 @@ Once sales are open, paid families get their code by email within seconds of pay
 | `FOUNDING_LIMIT` / `FOUNDING_PRICE` / `REGULAR_PRICE` | optional | Defaults 100 / 39 / 79 (AED) |
 | `MAX_DEVICES` | optional | Devices per code, default 3 |
 | `CHECKIN_DAYS` | optional | How long a device can stay offline before it must connect once, default 35 |
-| `RESEND_API_KEY` / `EMAIL_FROM` | for emails | Sends codes and reminders (see "Emails" above) |
-| `EMAIL_REPLY_TO` | optional | Where parents' replies go, default `hello@unscrolled.me` |
+| `GMAIL_APP_PASSWORD` | for emails | App password for unscrolled.me@gmail.com (see "Emails" above) |
+| `GMAIL_USER` / `EMAIL_FROM` / `EMAIL_REPLY_TO` | optional | Defaults: unscrolled.me@gmail.com, `StoryBloom <unscrolled.me@gmail.com>`, unscrolled.me@gmail.com |
+| `RESEND_API_KEY` | optional | Send through Resend instead of Gmail |
 | `EARLY_DAYS` | optional | Length of early access when you tap Approve, default 21 |
 
 ## How the lock works (in short)

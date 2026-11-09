@@ -73,7 +73,7 @@
           <div class="field"><label>Price paid (AED)</label><input type="number" name="price" value="0" min="0"></div>
         </div>
         <div class="field"><label>Note (only you see this)</label><input type="text" name="note" placeholder="e.g. school friend, joined via Instagram"></div>
-        <label class="check"><input type="checkbox" name="sendEmail" checked> Email the code to the parent (needs email set up in Netlify)</label>
+        <label class="check"><input type="checkbox" name="sendEmail" checked> Email the code to the parent from unscrolled.me@gmail.com</label>
         <button class="btn" type="submit">Create code</button>
       </form>
       <div id="create-result"></div>
@@ -147,7 +147,7 @@
       ["Active codes", active.length], ["Early access", active.filter(m => m.plan === "early").length],
       ["Founding sold", (o.foundingLimit - o.foundingLeft) + " / " + o.foundingLimit], ["Paid families", active.filter(m => m.plan === "founding" || m.plan === "regular").length]
     ].map(([k, v]) => `<div class="stat"><b>${esc(v)}</b>${esc(k)}</div>`).join("");
-    $("#setup").innerHTML = `Site mode: <b>${esc(modeText)}</b> · Ziina: ${d.ziinaReady ? '<span class="ok">connected' + (d.ziinaTest ? " (test mode)" : "") + "</span>" : '<span class="muted">not set up yet</span>'} · Email: ${d.emailReady ? '<span class="ok">on</span>' : '<span class="muted">off (send codes on WhatsApp)</span>'}`;
+    $("#setup").innerHTML = `Site mode: <b>${esc(modeText)}</b> · Ziina: ${d.ziinaReady ? '<span class="ok">connected' + (d.ziinaTest ? " (test mode)" : "") + "</span>" : '<span class="muted">not set up yet</span>'} · Email: ${d.emailReady ? '<span class="ok">on, sending from unscrolled.me@gmail.com</span>' : '<span class="muted">off: add GMAIL_APP_PASSWORD in Netlify (SETUP.md). Until then, send codes on WhatsApp</span>'}`;
     $("#pay-help").textContent = d.ziinaReady ? "Payments made on the website appear here. Families who paid get their code automatically." : "Payments are off while you run early access. When you're ready to sell, add your Ziina key in Netlify and switch SALES_MODE to founding (see SETUP.md).";
     $("#hook").hidden = !d.ziinaReady;
     renderWaitlist(); renderMembers(); renderOrders();

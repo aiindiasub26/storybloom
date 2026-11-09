@@ -1,25 +1,43 @@
-// Emails go out through Resend (resend.com) when RESEND_API_KEY is set.
-// Without it nothing is emailed: the code still shows on the thank-you page and in Admin.
+// Automatic emails (codes, renewal reminders) are sent from the StoryBloom Gmail account
+// through Gmail's own mail server, using a Google "app password" (GMAIL_APP_PASSWORD).
+// Resend (RESEND_API_KEY) still works as an alternative. With neither set, nothing is
+// emailed: codes still show on the thank-you page and in Admin (with a WhatsApp message).
+import nodemailer from "nodemailer";
 import { siteUrl } from "./core.mjs";
 
+export const CONTACT_EMAIL = "unscrolled.me@gmail.com";
+const gmailUser = () => process.env.GMAIL_USER || CONTACT_EMAIL;
+const from = () => process.env.EMAIL_FROM || `StoryBloom <${gmailUser()}>`;
+const replyTo = () => process.env.EMAIL_REPLY_TO || CONTACT_EMAIL;
+
+export const emailReady = () => !!(process.env.GMAIL_APP_PASSWORD || process.env.RESEND_API_KEY);
+
+let transport;
+function gmail() {
+  if (!transport) transport = nodemailer.createTransport({
+    host: "smtp.gmail.com", port: 465, secure: true,
+    auth: { user: gmailUser(), pass: String(process.env.GMAIL_APP_PASSWORD).replace(/\s+/g, "") }
+  });
+  return transport;
+}
+
 export async function sendEmail({ to, subject, html }) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key || !to) return { sent: false, reason: key ? "no address" : "email not set up" };
+  if (!to) return { sent: false, reason: "no address" };
+  if (!emailReady()) return { sent: false, reason: "email not set up" };
   try {
+    if (process.env.GMAIL_APP_PASSWORD) {
+      await gmail().sendMail({ from: from(), to, replyTo: replyTo(), subject, html });
+      return { sent: true, reason: "" };
+    }
     const res = await fetch((process.env.RESEND_API_BASE || "https://api.resend.com") + "/emails", {
       method: "POST",
-      headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || "StoryBloom <hello@unscrolled.me>",
-        to: [to],
-        reply_to: process.env.EMAIL_REPLY_TO || "hello@unscrolled.me",
-        subject,
-        html
-      })
+      headers: { Authorization: "Bearer " + process.env.RESEND_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: from(), to: [to], reply_to: replyTo(), subject, html })
     });
     return { sent: res.ok, reason: res.ok ? "" : "Resend error " + res.status };
   } catch (e) {
-    return { sent: false, reason: String(e.message || e) };
+    console.error("email failed", e);
+    return { sent: false, reason: String(e.message || e).slice(0, 200) };
   }
 }
 
@@ -30,7 +48,7 @@ function wrap(inner) {
   return `<div style="background:#fbf6ec;padding:28px 16px;font-family:Arial,Helvetica,sans-serif;color:#2f2a3b">
   <div style="max-width:520px;margin:0 auto;background:#fff;border:2px solid #2f2a3b;border-radius:18px;padding:28px">
   <div style="font-size:26px;font-weight:bold;margin-bottom:12px">StoryBloom</div>${inner}
-  <p style="color:#5d5670;font-size:13px;margin-top:28px">Made by a Gulf parent at unscrolled.me · Questions? Reply to this email or DM @unscrolled.uae on Instagram.</p>
+  <p style="color:#5d5670;font-size:13px;margin-top:28px">Made by a Gulf parent at unscrolled.me · Questions? Reply to this email (${CONTACT_EMAIL}) or DM @unscrolled.uae on Instagram.</p>
   </div></div>`;
 }
 

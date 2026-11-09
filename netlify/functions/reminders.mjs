@@ -1,10 +1,10 @@
 // Runs once a day: emails renewal reminders 14 days and 3 days before a family's year ends.
 import { DAY, saveMember } from "../lib/core.mjs";
 import { listJSON } from "../lib/store.mjs";
-import { sendEmail, renewEmail } from "../lib/email.mjs";
+import { sendEmail, renewEmail, emailReady } from "../lib/email.mjs";
 
 export default async () => {
-  if (!process.env.RESEND_API_KEY) return new Response("email not set up");
+  if (!emailReady()) return new Response("email not set up");
   const now = Date.now();
   let sent = 0;
   for (const m of await listJSON("member/")) {

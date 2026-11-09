@@ -45,13 +45,13 @@
           <li>Wait for <b>"Ready to use offline"</b> (about a minute on Wi-Fi).</li>
           <li>Add it to the home screen. Safari: Share, then Add to Home Screen. Chrome: the ⋮ menu, then Install app.</li>
         </ol>
-        <p class="muted">Questions? DM <a href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a>.</p>
+        <p class="muted">Questions? Email <a href="mailto:unscrolled.me@gmail.com">unscrolled.me@gmail.com</a> or DM <a href="https://instagram.com/unscrolled.uae" target="_blank" rel="noopener">@unscrolled.uae</a>.</p>
       </div>`;
   }
   function problem(s) {
     box.innerHTML = `<div class="tape pink"></div><img src="/img/bloom.svg" width="110" height="110" alt="" style="margin:0 auto">
       <h1 style="font-size:34px">${s === "failed" ? "The payment didn't go through" : "We're still checking your payment"}</h1>
-      <p class="muted">${s === "failed" ? "Nothing was charged. You can try again from the pricing section." : "If money left your account, don't worry: your code will reach you by email. You can also DM us on Instagram with your name and we'll sort it out."}</p>
+      <p class="muted">${s === "failed" ? "Nothing was charged. You can try again from the pricing section." : "If money left your account, don't worry: your code will reach you by email. You can also email unscrolled.me@gmail.com or DM us on Instagram with your name and we'll sort it out."}</p>
       <a class="btn ghost" href="/storybloom/#pricing">Back to StoryBloom</a>`;
   }
   if (!pi) problem("unknown"); else poll();

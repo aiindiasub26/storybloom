@@ -71,7 +71,7 @@ async function waitHome(pg, label) {
   ok(/^BLOOM-/.test(code) && (await d.textContent("#wl")).includes("emailed ✓"), "Approve creates a 21-day code and emails it (" + code + ")");
   const outbox = await fetch(base + "/__resend/outbox").then(r => r.json());
   const mail = outbox.find(e => e.to[0] === "sara@example.com");
-  ok(mail && mail.html.includes(code) && /early access/i.test(mail.subject) && /Google Meet/.test(mail.html) && mail.reply_to === "hello@unscrolled.me", "the email has the code, the Meet invite and replies go to hello@unscrolled.me");
+  ok(mail && mail.html.includes(code) && /early access/i.test(mail.subject) && /Google Meet/.test(mail.html) && mail.reply_to === "unscrolled.me@gmail.com" && /unscrolled.me@gmail.com/.test(mail.from), "the email has the code and the Meet invite, and comes from unscrolled.me@gmail.com");
   const again = await fetch(base + "/api/admin", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": "localadmin" }, body: JSON.stringify({ action: "approveAll" }) });
   ok(again.status === 404, "approving twice doesn't make a second code");
   await d.screenshot({ path: shots + "/admin.png", fullPage: true });

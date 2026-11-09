@@ -11,7 +11,7 @@ export default async req => {
     const code = normCode(b.renew);
     const m = code && (await getMember(code));
     if (!m) return json({ error: "We couldn't find that code. Check it and try again." }, 404);
-    if (m.revoked) return json({ error: "This code can't be renewed. Please message us." }, 403);
+    if (m.revoked) return json({ error: "This code can't be renewed. Please email unscrolled.me@gmail.com." }, 403);
     const o = await offer();
     const paying = m.plan === "founding" || m.plan === "regular";
     if (!paying && !o.sale) return json({ error: "Founding-family spots open soon. We'll message you first." }, 409);

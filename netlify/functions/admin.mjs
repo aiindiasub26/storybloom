@@ -2,7 +2,7 @@
 import { json, body, clean, cfg, DAY, offer, refreshStats, createMember, getMember, saveMember, normCode, siteUrl } from "../lib/core.mjs";
 import { listJSON, store } from "../lib/store.mjs";
 import { registerWebhook, safeEqual } from "../lib/ziina.mjs";
-import { sendEmail, codeEmail } from "../lib/email.mjs";
+import { sendEmail, codeEmail, emailReady } from "../lib/email.mjs";
 
 export default async req => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -18,7 +18,7 @@ export default async req => {
       await refreshStats();
       return json({
         offer: await offer(), settings: cfg(),
-        emailReady: !!process.env.RESEND_API_KEY, ziinaReady: !!process.env.ZIINA_API_KEY, ziinaTest: process.env.ZIINA_TEST === "1",
+        emailReady: emailReady(), ziinaReady: !!process.env.ZIINA_API_KEY, ziinaTest: process.env.ZIINA_TEST === "1",
         members: members.sort((a, b) => b.created - a.created),
         waitlist: waitlist.sort((a, b) => b.at - a.at),
         orders: orders.sort((a, b) => b.created - a.created).slice(0, 100)
