@@ -21,8 +21,20 @@
 
   /* ---------------- fixed stage scaling ---------------- */
   const stage = $("#stage");
+  // Read the real visible size. Right after launch (home-screen icon, QR scan, background tab)
+  // some browsers briefly report a wrong size, so take the best of the available measurements.
+  function screenSize() {
+    const de = document.documentElement, vv = window.visualViewport;
+    const W = Math.max(window.innerWidth || 0, de.clientWidth || 0) || (vv && vv.width) || 1280;
+    const H = Math.max(window.innerHeight || 0, de.clientHeight || 0) || (vv && vv.height) || 800;
+    return [W, H];
+  }
+  let lastFit = "";
   function fit() {
-    const W = window.innerWidth, H = window.innerHeight;
+    const [W, H] = screenSize();
+    const key = W + "x" + H + (stage.classList.contains("is-night") ? "n" : "");
+    if (key === lastFit && arguments[0] !== true) return;
+    lastFit = key;
     const portrait = H > W * 1.15;
     stage.classList.toggle("portrait", portrait);
     const w = portrait ? 800 : 1280, hh = portrait ? 1280 : 800;
@@ -33,8 +45,19 @@
     document.body.style.background = stage.classList.contains("is-night") ? "#141938" : "#e9dcc4";
     window.dispatchEvent(new Event("stagefit"));
   }
-  window.addEventListener("resize", fit); window.addEventListener("orientationchange", () => setTimeout(fit, 200));
-  fit(); window.fitStage = fit;
+  const refit = () => fit(true);
+  window.addEventListener("resize", fit);
+  window.addEventListener("orientationchange", () => { setTimeout(fit, 200); setTimeout(fit, 700); });
+  window.addEventListener("pageshow", refit);
+  window.addEventListener("load", refit);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) fit(); });
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", fit);
+  if (window.ResizeObserver) new ResizeObserver(() => fit()).observe(document.documentElement);
+  // keep checking for a moment after launch, while the screen size settles
+  [50, 250, 600, 1200, 2500].forEach(ms => setTimeout(fit, ms));
+  // and a slow safety net in case a size change is ever missed
+  setInterval(fit, 1500);
+  fit(true); window.fitStage = refit;
 
   /* ---------------- block zooming & scrolling ---------------- */
   ["gesturestart", "gesturechange", "gestureend"].forEach(e => document.addEventListener(e, ev => ev.preventDefault(), { passive: false }));
