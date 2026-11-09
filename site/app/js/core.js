@@ -59,6 +59,21 @@
   setInterval(fit, 1500);
   fit(true); window.fitStage = refit;
 
+  /* ---------------- full screen ---------------- */
+  // In a normal browser tab, the first tap switches StoryBloom to full screen (no address bar),
+  // and taps after the child leaves full screen bring it back. Installed to the home screen,
+  // it already opens full screen.
+  const standalone = () => (window.matchMedia && matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) || navigator.standalone;
+  const isFull = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const goFull = () => {
+    if (standalone() || isFull()) return;
+    const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req) return;
+    try { const p = req.call(el, { navigationUI: "hide" }); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+  };
+  document.addEventListener("click", goFull, true);
+  ["fullscreenchange", "webkitfullscreenchange"].forEach(e => document.addEventListener(e, () => setTimeout(refit, 120)));
+
   /* ---------------- block zooming & scrolling ---------------- */
   ["gesturestart", "gesturechange", "gestureend"].forEach(e => document.addEventListener(e, ev => ev.preventDefault(), { passive: false }));
   document.addEventListener("touchmove", e => { if (e.touches.length > 1 || !e.target.closest("canvas")) e.preventDefault(); }, { passive: false });
@@ -89,13 +104,62 @@
 
   /* ---------------- audio: clips, words, narration ---------------- */
   const AUD = "assets/audio/";
-  let current = null;
+  let current = null, token = 0;
+  // One shared player for every voice clip. Browsers on older tablets and iPads may refuse to
+  // start a brand-new player from a timer (auto-turn), so this one is unlocked by the first tap
+  // and reused for everything after that.
+  const VOICE = new Audio(); VOICE.preload = "auto";
+  const SILENT = "data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+  let unlocked = false;
+  const unlockVoice = () => {
+    if (unlocked) return; unlocked = true;
+    if (!current) { VOICE.src = SILENT; const p = VOICE.play(); if (p && p.catch) p.catch(() => { unlocked = false; }); }
+  };
+  ["pointerdown", "touchstart", "mousedown", "keydown"].forEach(e => document.addEventListener(e, unlockVoice, true));
   window.stopAudio = function () {
-    if (current) { current.pause(); current.onended = null; current = null; }
+    token++;
+    if (current) { current.pause(); current.onended = current.onerror = current.ontimeupdate = null; current = null; }
     if (window.stopSong && !window.__keepSong) window.stopSong();
     if (window.speechSynthesis) speechSynthesis.cancel();
-    cancelAnimationFrame(rafId);
+    cancelAnimationFrame(rafId); clearTimeout(watchdog);
   };
+  let watchdog = 0;
+  // Wait until the screen a voice belongs to is actually showing: its pictures loaded, the
+  // reading font ready and the opening animation finished. Slow tablets need this, or the
+  // voice says a letter before the child can see it.
+  const celebrating = () => !!stage.querySelector(".celebrate");
+  const noCelebration = () => new Promise(r => { const t0 = Date.now(); (function chk() { if (!celebrating() || Date.now() - t0 > 20000) r(); else setTimeout(chk, 150); })(); });
+  window.screenReady = function (opts) {
+    if (!(opts && opts.over) && celebrating()) return noCelebration().then(() => wait(300)).then(() => screenReady(opts));
+    const wins = stage.querySelectorAll(".win:not(.closing)"), w = wins[wins.length - 1] || stage;
+    const imgs = Array.prototype.filter.call(w.querySelectorAll("img"), i => !i.complete);
+    const loads = imgs.map(i => new Promise(r => { i.addEventListener("load", r, { once: true }); i.addEventListener("error", r, { once: true }); }));
+    if (document.fonts && document.fonts.ready) loads.push(document.fonts.ready);
+    const opened = w.__openedAt || 0, anim = Math.max(0, 380 - (Date.now() - opened));
+    return Promise.race([Promise.all(loads), wait(3500)])
+      .then(() => wait(anim))
+      .then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+  };
+  // Play a file on the shared player. Calls onReady(audio) once it's playing, or onFail().
+  function startVoice(src, my, onReady, onFail, opts) {
+    screenReady(opts).then(() => {
+      if (my !== token) return;
+      const a = VOICE; current = a;
+      a.onended = a.onerror = a.ontimeupdate = null;
+      a.pause(); a.src = src; a.currentTime = 0;
+      let failed = false; const fail = () => { if (failed || my !== token) return; failed = true; if (current === a) current = null; onFail(); };
+      a.onerror = fail;
+      const p = a.play();
+      if (p && p.then) p.then(() => { if (my === token) onReady(a); }).catch(err => {
+        if (my !== token) return;
+        if (err && err.name === "NotAllowedError") { // not allowed to play yet: play on the next tap
+          const go = () => { document.removeEventListener("pointerdown", go, true); if (my === token) a.play().then(() => onReady(a)).catch(fail); };
+          document.addEventListener("pointerdown", go, true);
+        } else fail();
+      });
+      else onReady(a);
+    });
+  }
   function voice() {
     const vs = speechSynthesis.getVoices();
     return vs.find(v => /en-GB/i.test(v.lang) && /female|libby|sonia|serena|kate|martha/i.test(v.name)) || vs.find(v => /^en/i.test(v.lang)) || null;
@@ -104,19 +168,23 @@
     return new Promise(res => {
       if (!window.speechSynthesis) return res();
       const u = new SpeechSynthesisUtterance(text); u.rate = rate; u.pitch = 1.05; const v = voice(); if (v) u.voice = v;
-      u.onend = u.onerror = () => res(); speechSynthesis.speak(u);
+      let done = false; const fin = () => { if (!done) { done = true; clearTimeout(t); res(); } };
+      const t = setTimeout(fin, 1500 + String(text).split(/\s+/).length * 700);
+      u.onend = u.onerror = fin; speechSynthesis.speak(u);
     });
   }
   window.tts = tts;
   // Play an audio file; resolves when it ends. Falls back to device speech if the file is missing.
-  window.playClip = function (src, fallbackText, { keep = false } = {}) {
-    if (!keep) stopAudio();
+  window.playClip = function (src, fallbackText, opts) {
+    stopAudio(); const my = token;
     return new Promise(res => {
-      const a = new Audio(src); current = a; let done = false;
-      const fin = () => { if (!done) { done = true; res(); } };
-      a.onended = fin;
-      a.onerror = () => { if (current === a) current = null; fallbackText ? tts(fallbackText).then(fin) : fin(); };
-      const p = a.play(); if (p && p.catch) p.catch(() => a.onerror());
+      let done = false; const fin = () => { if (!done) { done = true; clearTimeout(watchdog); res(); } };
+      startVoice(src, my, a => {
+        a.onended = fin;
+        // safety net: never wait more than the clip's length + 2 s
+        const guard = () => { clearTimeout(watchdog); watchdog = setTimeout(() => { if (my === token) fin(); }, ((a.duration && isFinite(a.duration) ? a.duration : 8) + 2) * 1000); };
+        guard(); a.ondurationchange = guard;
+      }, () => { fallbackText && my === token ? tts(fallbackText).then(fin) : fin(); }, opts);
     });
   };
   const WORDSET = new Set(window.WORD_BANK || []);
@@ -125,7 +193,7 @@
     return WORDSET.has(k) ? playClip(AUD + "words/" + k + ".mp3", w) : (stopAudio(), tts(w, 0.75));
   };
   window.saySound = l => playClip(AUD + "phonemes/" + l + ".mp3", l);
-  window.sayPrompt = k => playClip(AUD + "ui/" + k + ".mp3", (window.PROMPTS || {})[k]);
+  window.sayPrompt = (k, opts) => playClip(AUD + "ui/" + k + ".mp3", (window.PROMPTS || {})[k], opts);
   window.sayLetter = async l => {
     const L = LETTERS.find(x => x.l === l); await saySound(l); await wait(250); await saySound(l); await wait(250); await sayWord(L.word);
   };
@@ -142,31 +210,46 @@
     const total = weights.reduce((a, b) => a + b, 0);
     let acc = 0; const starts = weights.map(w => { const s = acc / total; acc += w; return s; });
     const light = i => spans.forEach((s, j) => { s.classList.toggle("on", j === i); s.classList.toggle("done", j < i); });
+    stopAudio(); const my = token;
     return new Promise(res => {
-      const a = new Audio(src); current = a; let last = -1, ended = false;
-      const finish = () => { if (ended) return; ended = true; cancelAnimationFrame(rafId); spans.forEach(s => s.classList.remove("on")); res(); };
-      const tick = () => {
-        if (!a.duration || isNaN(a.duration)) { rafId = requestAnimationFrame(tick); return; }
-        const lead = 0.12, usable = Math.max(0.5, a.duration - 0.35);
-        const p = Math.max(0, (a.currentTime - lead) / usable);
-        let i = starts.findIndex((s, k) => p >= s && (k === starts.length - 1 || p < starts[k + 1]));
-        if (i !== last && i >= 0) { last = i; light(i); onWord && onWord(i); }
-        if (!a.paused || a.currentTime === 0) rafId = requestAnimationFrame(tick);
-      };
-      a.onended = finish;
-      a.onerror = () => { // device speech fallback
-        if (current === a) current = null;
+      let last = -1, ended = false;
+      const finish = () => { if (ended) return; ended = true; cancelAnimationFrame(rafId); clearInterval(stallT); spans.forEach(s => s.classList.remove("on")); res(); };
+      let stallT = 0;
+      const speak = () => { // device speech if the recording can't play
+        if (my !== token) return;
         if (!window.speechSynthesis) return finish();
         const u = new SpeechSynthesisUtterance(text); u.rate = 0.85; const v = voice(); if (v) u.voice = v;
         const offs = []; let pos = 0; spans.forEach(s => { const i = text.indexOf(s.textContent, pos); offs.push(i < 0 ? pos : i); pos = (i < 0 ? pos : i) + s.textContent.length; });
         u.onboundary = e => { let i = offs.findIndex((o, k) => e.charIndex >= o && (k === offs.length - 1 || e.charIndex < offs[k + 1])); if (i >= 0 && i !== last) { last = i; light(i); onWord && onWord(i); } };
-        u.onend = u.onerror = finish; speechSynthesis.speak(u);
+        const t = setTimeout(finish, 2000 + spans.length * 650);
+        u.onend = u.onerror = () => { clearTimeout(t); finish(); }; speechSynthesis.speak(u);
       };
-      a.play().then(() => { rafId = requestAnimationFrame(tick); }).catch(() => a.onerror());
+      startVoice(src, my, a => {
+        const tick = () => {
+          if (my !== token) return;
+          if (a.duration && isFinite(a.duration)) {
+            const lead = 0.12, usable = Math.max(0.5, a.duration - 0.35);
+            const p = Math.max(0, (a.currentTime - lead) / usable);
+            const i = starts.findIndex((s, k) => p >= s && (k === starts.length - 1 || p < starts[k + 1]));
+            if (i !== last && i >= 0) { last = i; light(i); onWord && onWord(i); }
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        a.onended = () => { if (my === token) finish(); };
+        rafId = requestAnimationFrame(tick);
+        // stall guard: if playback stops moving for 6 s while it should be playing, move on
+        let lastT = -1, still = 0;
+        stallT = setInterval(() => {
+          if (my !== token) return clearInterval(stallT);
+          if (window.__storyPaused) { still = 0; return; }
+          if (a.currentTime === lastT) { if (++still >= 6) { finish(); } } else { still = 0; lastT = a.currentTime; }
+          if (a.ended) finish();
+        }, 1000);
+      }, speak);
     });
   };
-  window.pauseAudio = () => { if (current) current.pause(); cancelAnimationFrame(rafId); };
-  window.resumeAudio = () => { if (current) { current.play(); } };
+  window.pauseAudio = () => { window.__storyPaused = true; if (current) current.pause(); };
+  window.resumeAudio = () => { window.__storyPaused = false; if (current) { const p = current.play(); if (p && p.catch) p.catch(() => {}); } };
 
   // Split text into tappable word spans.
   window.wordSpans = function (text, cls = "w") {
@@ -234,10 +317,14 @@
   const stack = [];
   window.openWin = function ({ title, bg, night = false, build, onClose, titleColor }) {
     SFX.play("open");
-    const win = h("div", { class: "win grain" + (night ? " night" : "") });
+    const win = h("div", { class: "win grain" + (night ? " night" : "") }); win.__openedAt = Date.now();
     if (bg) win.style.background = bg;
     const back = h("button", { class: "back-btn", "aria-label": "Back" }, icon("back", 34));
-    const bar = h("div", { class: "win-bar" }, back, title ? cutout(title, 38) : null);
+    // the same StoryBloom logo as the home page, small, on every page
+    const homeLogo = document.querySelector("#home .logo");
+    const logo = homeLogo ? homeLogo.cloneNode(true) : h("div", { class: "logo" }, cutoutFancy("StoryBloom", 28));
+    logo.classList.add("mini"); logo.setAttribute("aria-hidden", "true");
+    const bar = h("div", { class: "win-bar" }, back, logo, title ? cutout(title, 38) : null);
     const body = h("div", { class: "win-body" });
     win.append(bar, body);
     stage.append(win);
@@ -262,7 +349,7 @@
 
   /* ---------------- feedback ---------------- */
   window.toast = function (msg, ms = 2200) { const t = h("div", { class: "toast" }, msg); stage.append(t); setTimeout(() => t.remove(), ms); };
-  window.celebrate = function (key, { stars = 1, msg = "Well done!" } = {}) {
+  window.celebrate = function (key, { stars = 1, msg = "Well done!", autoClose = 0 } = {}) {
     const st = award(key, stars);
     SFX.play("star");
     const c = h("div", { class: "celebrate" });
@@ -274,8 +361,10 @@
       h("div", { class: "hand", style: { fontSize: "34px", marginTop: "10px" } }, st ? "New sticker for your book!" : `+${stars} star${stars > 1 ? "s" : ""}`),
       h("button", { class: "pbtn green", style: { marginTop: "26px" }, onclick: () => c.remove() }, "Yay!")));
     stage.append(c);
-    sayPrompt(st ? "sticker" : rand(["great", "wow"]));
-    return new Promise(r => c.querySelector(".pbtn").addEventListener("click", r));
+    sayPrompt(st ? "sticker" : rand(["great", "wow"]), { over: true });
+    const btn = c.querySelector(".pbtn");
+    if (autoClose) setTimeout(() => { if (c.isConnected) btn.click(); }, autoClose);
+    return new Promise(r => btn.addEventListener("click", r));
   };
 
   // Simple pager for fixed screens: shows `per` items at a time with arrows.

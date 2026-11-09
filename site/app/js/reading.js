@@ -55,7 +55,7 @@
           if (win.closed) return;
           prog.children[r].classList.add("on"); r++;
           if (r >= rounds) { await wait(500); await celebrate("game:" + key + ":" + Date.now().toString().slice(0, 7), { stars: misses < 2 ? 3 : 2, msg: "Super!" }); history.back(); return; }
-          await wait(700); stage.innerHTML = ""; round(stage, next, () => misses++, r, win);
+          await wait(1300); if (win.closed) return; stage.innerHTML = ""; round(stage, next, () => misses++, r, win);
         };
         setTimeout(() => round(stage, next, () => misses++, 0, win), 400);
       }
@@ -93,23 +93,36 @@
       build(body, win) {
         blobs(win.el, [COLORS[i % COLORS.length], "#fbe3c0"], 4);
         const portrait = $("#stage").classList.contains("portrait");
-        const left = h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" } },
-          h("div", { class: "letter-big", style: { color: COLORS[i % COLORS.length], textShadow: "5px 5px 0 #2f2a3b" } }, L.l.toUpperCase() + L.l),
-          pic(L.pic, 130),
-          h("div", { class: "read", style: { fontSize: "54px" } }, h("b", { style: { color: COLORS[i % COLORS.length] } }, L.word[0]), L.word.slice(1)),
-          h("div", { style: { display: "flex", gap: "14px" } },
-            h("button", { class: "pbtn", onclick: () => sayLetter(L.l) }, ib("speaker", "Hear it")),
-            h("button", { class: "pbtn blue", onclick: () => saySound(L.l) }, ib("ear", "Sound"))));
+        const colr = COLORS[i % COLORS.length];
+        const big = h("div", { class: "letter-big", style: { color: colr, textShadow: "5px 5px 0 #2f2a3b", fontSize: portrait ? "200px" : "" } }, L.l.toUpperCase() + L.l);
+        const word = h("div", { class: "read", style: { fontSize: portrait ? "48px" : "54px" } }, h("b", { style: { color: colr } }, L.word[0]), L.word.slice(1));
+        const hearRow = h("div", { style: { display: "flex", gap: "14px" } },
+          h("button", { class: "pbtn", onclick: () => sayLetter(L.l) }, ib("speaker", "Hear it")),
+          h("button", { class: "pbtn blue", onclick: () => saySound(L.l) }, ib("ear", "Sound")));
+        const left = portrait
+          ? h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" } },
+              h("div", { style: { display: "flex", alignItems: "center", gap: "26px" } }, big,
+                h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } }, pic(L.pic, 120), word)),
+              hearRow)
+          : h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" } }, big, pic(L.pic, 130), word, hearRow);
         const tr = tracer(L.l, () => { celebrate("letter:" + L.l, { msg: "Beautiful!" }); });
         const caseBtn = h("button", { class: "pbtn small white" }, "Try: " + L.l.toUpperCase());
         let upper = false; caseBtn.onclick = () => { upper = !upper; tr.set(upper ? L.l.toUpperCase() : L.l); caseBtn.textContent = "Try: " + (upper ? L.l : L.l.toUpperCase()); };
+        const prevBtn = h("button", { class: "arrow", "aria-label": "Previous letter", disabled: i === 0, onclick: () => { win.close(); openLetter(i - 1, traceFirst); } }, icon("left", 34));
+        const nextBtn = h("button", { class: "arrow", "aria-label": "Next letter", disabled: i === 25, onclick: () => { win.close(); openLetter(i + 1, traceFirst); } }, icon("right", 34));
+        const clearBtn = h("button", { class: "pbtn small white", onclick: () => tr.clear() }, ib("eraser", "Clear", 22));
+        // portrait: the arrows sit in the same row as Clear, one on each side, so nothing overlaps
+        const tools = portrait
+          ? h("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "22px", width: "100%" } }, prevBtn, clearBtn, caseBtn, nextBtn)
+          : h("div", { style: { display: "flex", gap: "12px" } }, clearBtn, caseBtn);
         const right = h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" } },
-          h("div", { class: "hand", style: { fontSize: "34px" } }, "Trace it with your finger!"), tr.el,
-          h("div", { style: { display: "flex", gap: "12px" } }, h("button", { class: "pbtn small white", onclick: () => tr.clear() }, ib("eraser", "Clear", 22)), caseBtn));
-        const nav = h("div", { class: "pager" },
-          h("button", { class: "arrow", disabled: i === 0, onclick: () => { win.close(); openLetter(i - 1, traceFirst); } }, icon("left", 34)),
-          h("button", { class: "arrow", disabled: i === 25, onclick: () => { win.close(); openLetter(i + 1, traceFirst); } }, icon("right", 34)));
-        body.append(h("div", { style: { position: "absolute", inset: "0 30px 100px", display: "grid", gridTemplateColumns: portrait ? "1fr" : "1fr 1fr", alignItems: "center", justifyItems: "center" } }, left, right), nav);
+          h("div", { class: "hand", style: { fontSize: "34px" } }, "Trace it with your finger!"), tr.el, tools);
+        if (portrait) {
+          body.append(h("div", { style: { position: "absolute", top: "0", right: "30px", bottom: "24px", left: "30px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly" } }, left, right));
+        } else {
+          const nav = h("div", { class: "pager" }, prevBtn, nextBtn);
+          body.append(h("div", { style: { position: "absolute", top: "0", right: "30px", bottom: "100px", left: "30px", display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center", justifyItems: "center" } }, left, right), nav);
+        }
         setTimeout(() => traceFirst ? sayPrompt("trace") : sayLetter(L.l), 400);
       }
     });

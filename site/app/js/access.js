@@ -176,6 +176,7 @@
 #sb-lock .small a{color:#2f2a3b}
 #sb-banner{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:900;background:#fff;border:2px solid #2f2a3b;border-radius:30px;padding:8px 16px;font:500 16px Fredoka,system-ui,sans-serif;color:#2f2a3b;box-shadow:2px 3px 0 #2f2a3b;white-space:nowrap}
 #sb-banner a{color:#2f2a3b;font-weight:700}
+@media print{#sb-offline,#sb-lock{display:none!important}}
 #sb-offline{position:fixed;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:950;background:#2f2a3b;color:#fbf6ec;border-radius:22px;padding:8px 14px;font:500 15px Fredoka,system-ui,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);max-width:calc(100% - 24px)}
 #sb-offline a{color:#f7cf4a;font-weight:700}`;
     document.head.append(s);

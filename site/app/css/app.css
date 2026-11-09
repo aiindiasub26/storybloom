@@ -323,3 +323,18 @@ a.pbtn { color: var(--ink); display: inline-block; }
 #stage.portrait .act.grownups .form-row { font-size: 28px !important; }
 #stage.portrait .act.grownups .switch { width: 96px; height: 52px; }
 #stage.portrait .act.grownups .pbtn.small { font-size: 24px; padding: 12px 20px; }
+
+/* Light mode (slow tablets): same look, without the live filters that are slow to redraw. */
+html.lite .grain::after { display: none; }
+html.lite .blob { filter: none; mix-blend-mode: normal; opacity: .32; }
+html.lite .ico g, html.lite svg [filter] { filter: none; }
+html.lite .stk { filter: none; }
+html.lite .stk.locked { filter: grayscale(1) opacity(.22); }
+html.lite .win { animation-duration: .18s; }
+html.lite .confetti:nth-child(2n) { display: none; }
+
+/* small StoryBloom logo in every page header */
+.win-bar .logo.mini { flex: none; transform: rotate(-2deg); pointer-events: none; }
+.win-bar .logo.mini .cutout { flex: none; gap: 2px 8px; }
+.win-bar .logo.mini span { font-size: 26px !important; padding: 0 5px; box-shadow: 2px 3px 0 rgba(0, 0, 0, .2); }
+#stage.portrait .win-bar .logo.mini span { font-size: 22px !important; padding: 0 4px; }

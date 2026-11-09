@@ -126,19 +126,42 @@
         }
         function moralCard() {
           book.style.display = "none"; SFX.play("chime");
-          const card = h("div", { class: "center" },
-            pic("moon", 110),
+          const idx = STORIES.indexOf(s), nextS = STORIES[(idx + 1) % STORIES.length];
+          let countT = 0, left = 12;
+          const stopCount = () => { clearInterval(countT); countT = 0; nextRow.style.display = "none"; };
+          const goNext = () => { stopCount(); history.back(); setTimeout(() => openStory(nextS), 420); };
+          const countTxt = h("span", {});
+          const nextRow = h("div", { class: "next-story", style: { display: "none", alignItems: "center", gap: "14px", flexWrap: "wrap", justifyContent: "center" } },
+            h("img", { src: `assets/img/story/${nextS.id}-0.webp`, alt: "", style: { width: "92px", height: "92px", objectFit: "cover", borderRadius: "14px", border: "3px solid #2f2a3b" } }),
+            h("div", { class: "hand", style: { fontSize: "28px", color: "#f6f1e3" } }, "Next: ", h("b", {}, nextS.title), " ", countTxt),
+            h("button", { class: "pbtn yellow", onclick: goNext }, ib("right", "Play now")),
+            h("button", { class: "pbtn white small", onclick: stopCount }, ib("pause", "Stay here", 20)));
+          const card = h("div", { class: "center", style: { overflowY: "auto", gap: "18px" } },
+            window.pic("moon", 110),
             cutout("The End", 64),
             h("div", { class: "torn", style: { "--torn": tornPath(), padding: "26px 40px", maxWidth: "860px", transform: "rotate(-1deg)", color: "#2f2a3b", textAlign: "center" } },
               h("div", { class: "hand", style: { fontSize: "30px" } }, "The lesson:"),
               h("div", { class: "moral" }, s.moral)),
             h("div", { class: "hand", style: { fontSize: "30px", color: "#f6f1e3", maxWidth: "800px", textAlign: "center" } }, "Talk together: What was your favourite part? What would you have done?"),
-            h("div", { style: { display: "flex", gap: "16px" } },
-              h("button", { class: "pbtn white", onclick: () => { card.remove(); book.style.display = ""; page = 0; playing = true; render(); } }, ib("again", "Read again")),
-              h("button", { class: "pbtn purple", onclick: () => { lullabyOn(true); setIb(lullBtn, "music", "Lullaby off", 20); sayPrompt("goodnight"); } }, ib("moon", "Lullaby time")),
-              h("button", { class: "pbtn green", onclick: () => history.back() }, ib("check", "Done"))));
+            h("div", { style: { display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center" } },
+              h("button", { class: "pbtn white", onclick: () => { stopCount(); card.remove(); book.style.display = ""; page = 0; playing = true; render(); } }, ib("again", "Read again")),
+              h("button", { class: "pbtn purple", onclick: () => { stopCount(); lullabyOn(true); setIb(lullBtn, "music", "Lullaby off", 20); sayPrompt("goodnight"); } }, ib("moon", "Lullaby time")),
+              h("button", { class: "pbtn green", onclick: () => { stopCount(); history.back(); } }, ib("check", "Done"))),
+            nextRow);
           body.append(card);
-          if (!APP.done["story:" + s.id]) setTimeout(() => celebrate("story:" + s.id, { msg: "Story time!" }), 600);
+          win.cleanup.push(stopCount);
+          const first = !APP.done["story:" + s.id];
+          const cele = first ? wait(600).then(() => celebrate("story:" + s.id, { msg: "Story time!", autoClose: 6000 })) : Promise.resolve();
+          // with Auto-turn on, the next story starts by itself after a short countdown
+          cele.then(() => {
+            if (!auto || win.closed || !card.isConnected) return;
+            nextRow.style.display = "flex"; countTxt.textContent = "in " + left + "…";
+            countT = setInterval(() => {
+              if (win.closed || !card.isConnected) return stopCount();
+              left--; countTxt.textContent = "in " + left + "…";
+              if (left <= 0) goNext();
+            }, 1000);
+          });
         }
         playBtn.onclick = () => {
           playing = !playing; setIb(playBtn, playing ? "pause" : "play", "", 44);

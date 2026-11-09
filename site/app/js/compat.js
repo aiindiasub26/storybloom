@@ -5,6 +5,37 @@
   "use strict";
   var supports = function (p, v) { try { return window.CSS && CSS.supports(p, v); } catch (e) { return false; } };
 
+  /* Light mode for slow tablets: switches off the live paper-grain and watercolour filters,
+     which an older tablet has to redraw constantly. Turned on for old browsers, low-memory
+     devices, or when the first seconds show slow screen updates (remembered after that). */
+  var root = document.documentElement, LITE = "storybloom.lite", lite = false;
+  try { lite = localStorage.getItem(LITE) === "1"; } catch (e) {}
+  if (/[?&]lite=1/.test(location.search)) lite = true;
+  if (/[?&]lite=0/.test(location.search)) { lite = false; try { localStorage.removeItem(LITE); } catch (e) {} }
+  else {
+    if (!supports("inset", "0")) lite = true;
+    if (navigator.deviceMemory && navigator.deviceMemory <= 2) lite = true;
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) lite = true;
+  }
+  if (lite) root.className += " lite";
+  else if (window.requestAnimationFrame) {
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        var times = [], last = 0;
+        requestAnimationFrame(function f(t) {
+          if (last) times.push(t - last);
+          last = t;
+          if (times.length < 45) return requestAnimationFrame(f);
+          times.sort(function (a, b) { return a - b; });
+          if (times[Math.floor(times.length / 2)] > 28) { // fewer than ~35 frames a second
+            root.className += " lite";
+            try { localStorage.setItem(LITE, "1"); } catch (e) {}
+          }
+        });
+      }, 2500);
+    });
+  }
+
   /* Array.flat / Array.flatMap (Chrome 69) */
   if (!Array.prototype.flat) {
     Object.defineProperty(Array.prototype, "flat", { configurable: true, writable: true, value: function (depth) {
