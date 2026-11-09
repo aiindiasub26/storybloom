@@ -115,12 +115,33 @@
     }
     sessionStorage.removeItem("sb-retry");
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
-      navigator.serviceWorker.register("sw.js").then(() => {
-        navigator.serviceWorker.addEventListener("message", e => { if (e.data === "cached" && window.toast) toast("✅ Ready to use offline!", 3500); });
-      }).catch(() => {});
+      offlineSetup();
     }
     if (window.ACCESS.daysLeft <= WARN_DAYS) banner(p);
     setInterval(async () => { const st = await status(); if (st.state !== "ok") lock(st); }, 10 * 60 * 1000);
+  }
+
+  /* ---- offline saving: progress pill + status ---- */
+  const OFF = "storybloom.offline";
+  function pill(text, opts = {}) {
+    css();
+    let p = document.getElementById("sb-offline");
+    if (!p) { p = el("div", { id: "sb-offline", role: "status" }); document.body.append(p); }
+    p.textContent = text;
+    if (opts.retry) p.append(" ", el("a", { href: "#", onclick: e => { e.preventDefault(); p.textContent = "Trying again…"; register(); } }, "Try again"));
+    clearTimeout(pill.t);
+    if (opts.hideAfter) pill.t = setTimeout(() => p.remove(), opts.hideAfter);
+  }
+  function register() { return navigator.serviceWorker.register("sw.js").catch(() => pill("Offline saving isn't available in this browser.", { hideAfter: 6000 })); }
+  function offlineSetup() {
+    navigator.serviceWorker.addEventListener("message", e => {
+      const d = e.data;
+      if (d === "cached") { ls.set(OFF, "ready"); pill("✅ Ready to use offline", { hideAfter: 4000 }); }
+      else if (d && d.type === "progress") { ls.set(OFF, "saving"); pill("Saving for offline… " + Math.round(100 * d.done / d.total) + "%  Keep this open on Wi-Fi."); }
+      else if (d && d.type === "failed") { ls.set(OFF, "failed"); pill("Couldn't finish saving for offline.", { retry: true }); }
+      else if (d && d.type === "status") { if (d.ready) ls.set(OFF, "ready"); else pill("Saving for offline… " + Math.round(100 * d.done / d.total) + "%"); }
+    });
+    register().then(() => { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage("status"); });
   }
 
   // Shown inside the Grown-ups corner (see home.js).
@@ -129,6 +150,7 @@
     return h("div", { class: "form-row", style: { flexDirection: "column", alignItems: "flex-start", gap: "4px" } },
       h("b", {}, "StoryBloom plan: " + (PLAN[a.plan] || "Active")),
       h("span", {}, "Active until " + fmt(a.until) + " · Code " + a.code),
+      h("span", {}, ls.get(OFF) === "ready" ? "Offline: ready on this device ✓" : "Offline: not saved yet. Keep StoryBloom open on Wi-Fi until it says Ready."),
       h("a", { href: renewUrl(a.code), target: "_blank", rel: "noopener", style: { color: "inherit" } }, "Renew or extend"));
   };
 
@@ -149,7 +171,9 @@
 #sb-lock .small{font-size:15px;margin-top:16px}
 #sb-lock .small a{color:#2f2a3b}
 #sb-banner{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:900;background:#fff;border:2px solid #2f2a3b;border-radius:30px;padding:8px 16px;font:500 16px Fredoka,system-ui,sans-serif;color:#2f2a3b;box-shadow:2px 3px 0 #2f2a3b;white-space:nowrap}
-#sb-banner a{color:#2f2a3b;font-weight:700}`;
+#sb-banner a{color:#2f2a3b;font-weight:700}
+#sb-offline{position:fixed;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:950;background:#2f2a3b;color:#fbf6ec;border-radius:22px;padding:8px 14px;font:500 15px Fredoka,system-ui,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);max-width:calc(100% - 24px)}
+#sb-offline a{color:#f7cf4a;font-weight:700}`;
     document.head.append(s);
   }
   const el = (tag, attrs, ...kids) => { const e = document.createElement(tag); for (const k in attrs || {}) { if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); } kids.forEach(c => c != null && e.append(c)); return e; };

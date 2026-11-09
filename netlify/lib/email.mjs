@@ -60,7 +60,12 @@ export function welcomeEmail(m) {
 <p>Thank you for joining StoryBloom${m.plan === "founding" ? " as a founding family" : ""}. Here is your code:</p>
 <p style="font-size:28px;font-weight:bold;letter-spacing:2px;background:#fff3c4;border-radius:12px;padding:14px;text-align:center">${esc(m.code)}</p>
 <p><a href="${open}" style="display:inline-block;background:#2f2a3b;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open StoryBloom</a></p>
-<p><b>On your child's tablet:</b> open the link above in Safari (iPad) or Chrome (Android), wait for "Ready to use offline", then add it to the home screen. After that it works with no internet.</p>
+<p><b>Setting it up on your child's tablet</b> (on Wi-Fi):</p>
+<ol style="padding-left:20px">
+<li><b>iPad or iPhone:</b> open <b>unscrolled.me/app</b> in Safari, tap Share → <b>Add to Home Screen</b>, then open StoryBloom <b>from the new icon</b> (the home-screen app keeps its own storage, separate from Safari).<br><b>Android:</b> open the button above in Chrome, then ⋮ → Install app.</li>
+<li>Type your code and tap Unlock.</li>
+<li>Keep it open until it says <b>"Ready to use offline"</b> (about a minute). After that it works with no internet.</li>
+</ol>
 <p>Your code works on up to ${Number(process.env.MAX_DEVICES || 3)} devices and is active until <b>${fmt(m.until)}</b>.</p>`)
   };
 }
@@ -74,7 +79,12 @@ export function earlyEmail(m) {
 <p>Thank you for joining StoryBloom early access! Here is your code:</p>
 <p style="font-size:28px;font-weight:bold;letter-spacing:2px;background:#fff3c4;border-radius:12px;padding:14px;text-align:center">${esc(m.code)}</p>
 <p><a href="${open}" style="display:inline-block;background:#2f2a3b;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open StoryBloom</a></p>
-<p><b>On your child's tablet:</b> open the link above in Safari (iPad) or Chrome (Android), wait for "Ready to use offline", then add it to the home screen. After that it works with no internet.</p>
+<p><b>Setting it up on your child's tablet</b> (on Wi-Fi):</p>
+<ol style="padding-left:20px">
+<li><b>iPad or iPhone:</b> open <b>unscrolled.me/app</b> in Safari, tap Share → <b>Add to Home Screen</b>, then open StoryBloom <b>from the new icon</b> (the home-screen app keeps its own storage, separate from Safari).<br><b>Android:</b> open the button above in Chrome, then ⋮ → Install app.</li>
+<li>Type your code and tap Unlock.</li>
+<li>Keep it open until it says <b>"Ready to use offline"</b> (about a minute). After that it works with no internet.</li>
+</ol>
 <p>Early access is free for <b>${days} days</b>, until ${fmt(m.until)}, on up to ${Number(process.env.MAX_DEVICES || 3)} devices.</p>
 <p>After that, I'd love you to join a 1-hour parents' Google Meet to hear what worked, what didn't, and what to build next. I'll send the invite. Founding-family spots open to early families first.</p>
 <p>Aswathi</p>`)

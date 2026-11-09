@@ -95,6 +95,8 @@ async function waitHome(pg, label) {
   await t.waitForFunction(() => navigator.serviceWorker.controller || false, null, { timeout: 120000 }).catch(() => {});
   await t.waitForFunction(async () => { const ks = await caches.keys(); if (!ks.length) return false; const c = await caches.open(ks[0]); return (await c.keys()).length > 600; }, null, { timeout: 180000, polling: 1000 });
   ok(true, "everything saved for offline use");
+  await t.waitForFunction(() => localStorage.getItem("storybloom.offline") === "ready", null, { timeout: 30000 }).catch(() => {});
+  ok(await t.evaluate(() => localStorage.getItem("storybloom.offline")) === "ready", "the app shows it's ready to use offline");
   await t.waitForTimeout(1500);
   await t.screenshot({ path: shots + "/app-home.png" });
   await tab.setOffline(true);
