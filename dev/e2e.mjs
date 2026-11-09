@@ -48,8 +48,12 @@ async function waitHome(pg, label) {
   await pg.waitForFunction(() => document.querySelector("#spots").textContent.includes("families"));
   ok(await pg.isVisible("#join") && !(await pg.isVisible("#buy")), "landing shows the waitlist, not the checkout");
   await pg.screenshot({ path: shots + "/landing-phone.png", fullPage: true });
-  await pg.fill("#w-name", "Sara Ahmed"); await pg.fill("#w-email", "sara@example.com"); await pg.fill("#w-phone", "+971 50 123 4567");
+  await pg.fill("#w-name", "Sara Ahmed"); await pg.fill("#w-email", "sara@gmal.com"); await pg.fill("#w-phone", "+971 50 123 4567");
   await pg.selectOption("#w-age", "5"); await pg.selectOption("#w-country", "UAE");
+  await pg.click("#waitlist-form button");
+  await pg.waitForSelector("#w-fix");
+  ok((await pg.textContent("#w-fix")) === "sara@gmail.com", "a typo like @gmal.com is caught and corrected");
+  await pg.fill("#w-email", "sara@example.com");
   await pg.click("#waitlist-form button");
   await pg.waitForSelector(".done");
   ok((await pg.textContent(".done")).includes("You're on the list, Sara"), "waitlist sign-up works");

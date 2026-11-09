@@ -233,11 +233,24 @@
     }
   }).catch(() => {});
 
+  // common misspellings of email providers → the right domain
+  const TYPOS = { "gmal.com": "gmail.com", "gmial.com": "gmail.com", "gmai.com": "gmail.com", "gamil.com": "gmail.com", "gmail.co": "gmail.com", "gmail.cm": "gmail.com", "gmaill.com": "gmail.com", "gnail.com": "gmail.com", "gmail.con": "gmail.com",
+    "hotmial.com": "hotmail.com", "hotmal.com": "hotmail.com", "hotmail.co": "hotmail.com", "yaho.com": "yahoo.com", "yahooo.com": "yahoo.com", "yahoo.co": "yahoo.com", "outlok.com": "outlook.com", "outlook.co": "outlook.com", "iclod.com": "icloud.com", "icloud.co": "icloud.com" };
+  const fixEmail = e => { const [u, d] = e.toLowerCase().split("@"); return TYPOS[d] ? u + "@" + TYPOS[d] : null; };
+
   $("#waitlist-form").addEventListener("submit", async e => {
     e.preventDefault();
     const f = e.target, m = $("#w-msg"), btn = f.querySelector("button");
     const data = Object.fromEntries(new FormData(f)); data.meet = f.meet.checked; data.source = qs.get("utm_source") || qs.get("src") || document.referrer.replace(/^https?:\/\//, "").split("/")[0];
     if (!data.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())) { m.className = "formmsg err"; m.textContent = "Please add your name and a valid email, so we can send your code."; return; }
+    const fixed = fixEmail(data.email.trim());
+    if (fixed) {
+      m.className = "formmsg err";
+      m.innerHTML = 'Did you mean <a href="#" id="w-fix"></a>? Tap it to correct, then join.';
+      $("#w-fix").textContent = fixed;
+      $("#w-fix").onclick = ev => { ev.preventDefault(); $("#w-email").value = fixed; m.textContent = ""; };
+      return;
+    }
     btn.disabled = true; btn.textContent = "Adding you…";
     const r = await post("/api/waitlist", data);
     if (r.ok) {

@@ -199,13 +199,19 @@
       return `<tr><td><b>${esc(m.code)}</b></td><td>${esc(m.name)}<br><span class="muted">${esc(m.phone)} ${esc(m.email)}</span>${m.note ? `<br><span class="muted">${esc(m.note)}</span>` : ""}</td>
         <td><span class="tag ${esc(m.plan)}">${esc(PLAN[m.plan] || m.plan)}</span>${m.price ? `<br><span class="muted">AED ${esc(m.price)}</span>` : ""}</td>
         <td>${fmt(m.until)}<br>${state}</td><td>${m.devices.length} / ${max}</td>
-        <td class="acts" data-code="${esc(m.code)}">${m.email ? '<button data-a="resend">Email code again</button>' : ""}<button data-a="wa">WhatsApp message</button><button data-a="extend7">+7 days</button><button data-a="extend">+ days…</button><button data-a="resetDevices">Reset devices</button>${m.revoked ? '<button data-a="restore">Switch on</button>' : '<button data-a="revoke">Switch off</button>'}</td></tr>`;
+        <td class="acts" data-code="${esc(m.code)}"><button data-a="editEmail">Edit email</button>${m.email ? '<button data-a="resend">Email code again</button>' : ""}<button data-a="wa">WhatsApp message</button><button data-a="extend7">+7 days</button><button data-a="extend">+ days…</button><button data-a="resetDevices">Reset devices</button>${m.revoked ? '<button data-a="restore">Switch on</button>' : '<button data-a="revoke">Switch off</button>'}</td></tr>`;
     }).join("");
     $("#members").querySelectorAll("[data-a]").forEach(b => b.onclick = async () => {
       const code = b.parentNode.dataset.code, m = DATA.members.find(x => x.code === code), a = b.dataset.a;
       if (a === "wa") return showMessage(m);
       try {
         if (a === "resend") { await api("resend", { code }); toast("Email sent"); return; }
+        if (a === "editEmail") {
+          const email = prompt("Correct email for " + (m.name || code) + ":", m.email || "");
+          if (email === null || !email.trim()) return;
+          const r = await api("updateContact", { code, email: email.trim(), resend: true });
+          toast(r.emailed ? "Saved and code emailed" : "Saved"); await load(); return;
+        }
         if (a === "extend7") await api("extend", { code, days: 7 });
         else if (a === "extend") { const days = Number(prompt("Add how many days?", "21")); if (!days) return; await api("extend", { code, days }); }
         else if (a === "revoke") { if (!confirm("Switch off " + code + "? The app locks next time that device goes online.")) return; await api("revoke", { code }); }

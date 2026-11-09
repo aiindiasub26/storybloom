@@ -52,6 +52,19 @@ export default async req => {
       const r = await sendEmail({ to: m.email, ...codeEmail(m) });
       return r.sent ? json({ ok: true }) : json({ error: "Email not sent: " + r.reason }, 502);
     }
+    case "updateContact": {
+      const m = code && (await getMember(code));
+      if (!m) return json({ error: "Code not found" }, 404);
+      const email = clean(b.email, 120).toLowerCase();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return json({ error: "That email doesn't look right." }, 400);
+      if (b.email !== undefined) m.email = email;
+      if (b.phone !== undefined) m.phone = clean(b.phone, 30);
+      if (b.name !== undefined && clean(b.name, 60)) m.name = clean(b.name, 60);
+      await saveMember(m);
+      let emailed = false;
+      if (b.resend && m.email) emailed = (await sendEmail({ to: m.email, ...codeEmail(m) })).sent;
+      return json({ member: m, emailed });
+    }
     case "extend": case "revoke": case "restore": case "resetDevices": {
       const m = code && (await getMember(code));
       if (!m) return json({ error: "Code not found" }, 404);
