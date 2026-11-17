@@ -36,13 +36,15 @@
     var s = stop.getBoundingClientRect(), b = base.getBoundingClientRect();
     return { x: s.left + ink.cx, y: b.top + ink.cy, d: ink.d };
   }
-  var freeSize = function (dd) { return Math.max(dd, 18); }; // small screens get a grabbable ball
+  var freeSize = function (dd) { return Math.min(84, Math.max(44, dd * 2)); }; // the ball is about twice the full stop
 
   function draw() {
     var r = d / 2;
     ball.style.width = ball.style.height = d + "px";
     ball.style.transform = "translate(" + (p.x - r) + "px," + (p.y - r) + "px)";
-    grip.style.transform = "translate(" + (p.x - 24) + "px," + (p.y - 24) + "px)";
+    var g = Math.max(48, d + 12);
+    grip.style.width = grip.style.height = g + "px";
+    grip.style.transform = "translate(" + (p.x - g / 2) + "px," + (p.y - g / 2) + "px)";
     grip.style.pointerEvents = ghost ? "none" : "auto";
   }
   function bounds() {
