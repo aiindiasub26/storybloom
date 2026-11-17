@@ -40,8 +40,8 @@
   }
   var cat = document.getElementById("cat");
   var pupils = cat && cat.querySelector(".pupils");
-  // the ball is a toy-ball size for the cat: about a third of its height
-  var freeSize = function (dd) { return cat && cat.offsetHeight ? Math.round(cat.offsetHeight * 0.34) : Math.min(84, Math.max(44, dd * 2)); };
+  // the ball is a toy-ball size for the cat: just under a third of its height
+  var freeSize = function (dd) { return cat && cat.offsetHeight ? Math.round(cat.offsetHeight * 0.306) : Math.min(76, Math.max(40, dd * 1.8)); };
   // the cat's shapes on screen (its drawing is 120 x 140 units)
   function catGeom() {
     if (!cat || !cat.offsetHeight) return null;
