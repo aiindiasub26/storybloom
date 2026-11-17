@@ -12,6 +12,7 @@
   --butter: #ffe36a;
   --lilac: #d3cbff;
   --mint: #c4f0dc;
+  --mustard: #dfa01e; /* the logo's full stop */
   --gutter: clamp(16px, 4vw, 48px);
   --max: 1240px;
 }
@@ -37,7 +38,7 @@ html { scroll-padding-top: 80px; }
 
 /* the hero's full stop becomes a ball (ball.js) */
 main { position: relative; z-index: 2; }
-.ball { position: fixed; left: 0; top: 0; z-index: 1; display: none; border-radius: 50%; background: var(--ink); pointer-events: none; will-change: transform; }
+.ball { position: fixed; left: 0; top: 0; z-index: 1; display: none; border-radius: 50%; background: var(--mustard); pointer-events: none; will-change: transform; }
 .ball-grip { position: fixed; left: 0; top: 0; z-index: 6; display: none; width: 48px; height: 48px; border-radius: 50%; touch-action: none; cursor: grab; }
 .word .stop .base { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
 .word .stop.gone { color: transparent; -webkit-text-stroke-color: transparent; }
@@ -47,6 +48,7 @@ main { position: relative; z-index: 2; }
 /* the unscrolled. logo, as on Instagram: lowercase Caslon, a hairline heavier than regular */
 .logo { font-family: "Caslon", "Libre Caslon Text", Georgia, serif; font-weight: 400; -webkit-text-stroke: .012em currentColor; letter-spacing: -.01em; }
 .mark { font-size: 26px; line-height: 1; text-decoration: none; }
+.logo .pt, .word .stop { color: var(--mustard); }
 .bar nav { display: flex; gap: 6px; align-items: center; }
 .bar nav a { text-decoration: none; padding: 8px 14px; border-radius: 999px; font-size: 16px; }
 .bar nav a:hover { background: var(--paper); }
