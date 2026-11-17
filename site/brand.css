@@ -35,17 +35,14 @@ p { margin: 0 0 1em; }
 body { padding-top: calc(64px + env(safe-area-inset-top, 0px)); }
 html { scroll-padding-top: 80px; }
 
-/* the logo's full stop hops while the page scrolls, and lands when it stops */
-.mark .hop { display: inline-block; transform-origin: 50% 100%; --h: .45em; }
-.bar.moving .mark .hop { animation: hop .44s cubic-bezier(.33, 0, .67, 1) infinite; }
-.mark .hop.landed { animation: settle .38s cubic-bezier(.3, 1.6, .5, 1); }
-@keyframes hop {
-  0%, 100% { transform: translateY(0) scale(1.25, .78); }
-  12% { transform: translateY(-.1em) scale(.9, 1.12); }
-  50% { transform: translateY(calc(var(--h) * -1)) scale(1, 1); }
-  88% { transform: translateY(-.08em) scale(.92, 1.1); }
-}
-@keyframes settle { 0% { transform: scale(1.35, .7); } 100% { transform: none; } }
+/* the hero's full stop becomes a ball (ball.js) */
+main { position: relative; z-index: 2; }
+.ball { position: fixed; left: 0; top: 0; z-index: 1; display: none; border-radius: 50%; background: var(--ink); pointer-events: none; will-change: transform; }
+.ball-grip { position: fixed; left: 0; top: 0; z-index: 6; display: none; width: 48px; height: 48px; border-radius: 50%; touch-action: none; cursor: grab; }
+.word .stop .base { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
+.word .stop.gone { color: transparent; -webkit-text-stroke-color: transparent; }
+.word .stop.plop { animation: plop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes plop { 0% { transform: scale(1.4, .7); } 100% { transform: none; } }
 .bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
 /* the unscrolled. logo, as on Instagram: lowercase Caslon, a hairline heavier than regular */
 .logo { font-family: "Caslon", "Libre Caslon Text", Georgia, serif; font-weight: 400; -webkit-text-stroke: .012em currentColor; letter-spacing: -.01em; }
@@ -133,7 +130,7 @@ footer .mark { color: var(--ink); }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .feed span, .word .stop, .mark .hop { animation: none !important; }
+  .feed span, .word .stop { animation: none !important; }
   .btn { transition: none; }
 }
 .hero-foot .tag { color: var(--ink); }

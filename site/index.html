@@ -14,12 +14,13 @@
 <link rel="preload" href="/fonts/caslon.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/brand.css">
+<script src="/ball.js" defer></script>
 </head>
 <body>
 
 <header class="bar" id="bar">
   <div class="wrap">
-    <a class="mark logo" href="/" aria-label="unscrolled. home">unscrolled<span class="hop" aria-hidden="true">.</span></a>
+    <a class="mark logo" href="/" aria-label="unscrolled. home">unscrolled.</a>
     <nav aria-label="Main">
       <a class="hide-sm" href="#products">Products</a>
       <a class="hide-sm" href="#about">About</a>
@@ -137,26 +138,11 @@
 </footer>
 
 <script>
-// The logo's full stop bounces while you scroll (higher when you scroll faster),
-// finishes its hop when you stop, and lands.
+// A thin line under the bar once the page has scrolled.
 (function () {
-  const bar = document.getElementById("bar"), dot = bar.querySelector(".hop");
-  if (!dot || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-  let lastY = scrollY, lastT = performance.now(), idle = 0, stopping = false;
-  dot.addEventListener("animationiteration", () => {
-    if (!stopping) return;
-    stopping = false; bar.classList.remove("moving");
-    dot.classList.remove("landed"); void dot.offsetWidth; dot.classList.add("landed");
-  });
-  dot.addEventListener("animationend", () => dot.classList.remove("landed"));
-  addEventListener("scroll", () => {
-    const now = performance.now(), v = Math.abs(scrollY - lastY) / Math.max(16, now - lastT);
-    lastY = scrollY; lastT = now;
-    bar.classList.toggle("scrolled", scrollY > 8);
-    dot.style.setProperty("--h", Math.min(.75, .28 + v * .22).toFixed(2) + "em");
-    stopping = false; bar.classList.add("moving"); dot.classList.remove("landed");
-    clearTimeout(idle); idle = setTimeout(() => { stopping = true; }, 140);
-  }, { passive: true });
+  const bar = document.getElementById("bar");
+  const set = () => bar.classList.toggle("scrolled", scrollY > 8);
+  addEventListener("scroll", set, { passive: true }); set();
 })();
 
 // StoryBloom's status follows the sales stage: early access → founding spots → available.
