@@ -1,10 +1,11 @@
 /* unscrolled. brand site — its own look, separate from the StoryBloom product page (site.css). */
+@font-face { font-family: "Caslon"; src: url("/fonts/caslon.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Bricolage"; src: url("/fonts/bricolage.woff2") format("woff2"); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
 
 :root {
   --chalk: #f3f4f6;
   --paper: #fbfbfc;
-  --ink: #17173d;
+  --ink: #0e1117;
   --ink-soft: #5b5b7a;
   --line: #d9dae3;
   --cobalt: #3446ff;
@@ -15,9 +16,9 @@
   --max: 1240px;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --chalk: #101026; --paper: #17173a; --ink: #eeeef7; --ink-soft: #a5a5c4; --line: #2c2c55; --cobalt: #7e8bff; }
+  :root:not([data-theme="light"]) { --chalk: #0b0e13; --paper: #151a22; --ink: #f2efd6; --ink-soft: #a9a795; --line: #262c36; --cobalt: #7e8bff; }
 }
-:root[data-theme="dark"] { --chalk: #101026; --paper: #17173a; --ink: #eeeef7; --ink-soft: #a5a5c4; --line: #2c2c55; --cobalt: #7e8bff; }
+:root[data-theme="dark"] { --chalk: #0b0e13; --paper: #151a22; --ink: #f2efd6; --ink-soft: #a9a795; --line: #262c36; --cobalt: #7e8bff; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -27,12 +28,13 @@ a { color: inherit; }
 p { margin: 0 0 1em; }
 :focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 6px; }
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
-.dot { display: inline-block; width: .2em; height: .2em; border-radius: 50%; background: var(--cobalt); vertical-align: baseline; margin-left: .04em; }
 
 /* ---------- top bar ---------- */
 .bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--chalk) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
-.mark { font-weight: 800; font-stretch: 80%; font-size: 24px; letter-spacing: -.03em; text-decoration: none; }
+/* the unscrolled. logo, as on Instagram: lowercase Caslon, a hairline heavier than regular */
+.logo { font-family: "Caslon", "Libre Caslon Text", Georgia, serif; font-weight: 400; -webkit-text-stroke: .012em currentColor; letter-spacing: -.01em; }
+.mark { font-size: 26px; line-height: 1; text-decoration: none; }
 .bar nav { display: flex; gap: 6px; align-items: center; }
 .bar nav a { text-decoration: none; padding: 8px 14px; border-radius: 999px; font-size: 16px; }
 .bar nav a:hover { background: var(--paper); }
@@ -48,8 +50,8 @@ p { margin: 0 0 1em; }
 @keyframes drift-l { from { transform: translateX(-38%); } to { transform: translateX(-6%); } }
 @keyframes drift-r { from { transform: translateX(8%); } to { transform: translateX(-20%); } }
 .hero .wrap { position: relative; }
-.word { margin: 0; font-weight: 800; font-stretch: 75%; font-size: clamp(64px, 17vw, 224px); line-height: .84; letter-spacing: -.03em; }
-.word .dot { width: .19em; height: .19em; margin-left: .03em; animation: land .7s cubic-bezier(.3, 1.6, .5, 1) 1.5s both; }
+.word { margin: 0; font-size: clamp(60px, 16vw, 212px); line-height: .95; letter-spacing: -.02em; }
+.word .stop { display: inline-block; animation: land .7s cubic-bezier(.3, 1.6, .5, 1) 1.5s both; }
 @keyframes land { from { transform: translateY(-1.4em) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
 .hero-foot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px 48px; margin-top: clamp(28px, 4vw, 48px); align-items: end; }
 .tag { font-size: clamp(24px, 3vw, 36px); font-weight: 600; letter-spacing: -.02em; line-height: 1.15; margin: 0; max-width: 16ch; }
@@ -116,7 +118,7 @@ footer .mark { color: var(--ink); }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .feed span, .word .dot { animation: none !important; }
+  .feed span, .word .stop { animation: none !important; }
   .btn { transition: none; }
 }
 .hero-foot .tag { color: var(--ink); }
