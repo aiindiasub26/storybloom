@@ -18,6 +18,38 @@
       .then(() => new Promise(r => setTimeout(() => { try { window.print(); } catch (e) {} r(); }, 150)));
   }
   window.addEventListener("afterprint", () => { $("#print-root").innerHTML = ""; });
+  /* ---------- keeping files inside the app ----------
+     Opening a PDF by itself takes over the whole app window: on a tablet or an installed app
+     there's no address bar, so no Back and no Share. Instead, files are shared through the
+     device's share sheet (WhatsApp, Files, Drive, Print…) or saved as a download, and the
+     app stays where it is. */
+  const STANDALONE = (() => { try { return matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } })();
+  const TOUCH = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  const canShareFiles = (() => { try { return !!(navigator.canShare && navigator.canShare({ files: [new File(["x"], "x.pdf", { type: "application/pdf" })] })); } catch (e) { return false; } })();
+  const getBlob = url => fetch(url).then(r => { if (!r.ok) throw new Error("missing"); return r.blob(); });
+  function shareFile(blob, name, title) {
+    const f = new File([blob], name, { type: blob.type || "application/pdf" });
+    return navigator.share({ files: [f], title }).catch(e => { if (!e || e.name !== "AbortError") { toast("Sharing didn't work, saving instead"); saveBlob(blob, name); } });
+  }
+  function saveBlob(blob, name) {
+    const u = URL.createObjectURL(blob);
+    const a = h("a", { href: u, download: name, style: { display: "none" } }); document.body.append(a); a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(u); }, 60000);
+    toast("Saved to your downloads");
+  }
+  const busy = (btn, p) => { btn.disabled = true; return Promise.resolve(p).catch(() => toast("Couldn't get the file, try again on Wi-Fi")).then(() => { btn.disabled = false; }); };
+  // Buttons for one ready-made PDF: Share (where the device supports it), Save, and on a
+  // computer browser also Open in a new tab.
+  window.pdfButtons = function (file, title) {
+    const url = "assets/print/" + file, name = "StoryBloom-" + file;
+    const out = [];
+    if (canShareFiles) { const b = h("button", { class: "pbtn blue", onclick: () => busy(b, getBlob(url).then(bl => shareFile(bl, name, title))) }, ib("share", "Share PDF")); out.push(b); }
+    const sv = h("button", { class: "pbtn white", onclick: () => busy(sv, getBlob(url).then(bl => saveBlob(bl, name))) }, ib("save", "Save PDF")); out.push(sv);
+    if (!STANDALONE && !TOUCH) out.push(h("a", { class: "pbtn white", href: url, target: "_blank", rel: "noopener", style: { textDecoration: "none", textAlign: "center" } }, ib("pdf", "Open PDF")));
+    return out;
+  };
+  window.shareOrSaveBlob = (blob, name, title) => canShareFiles ? shareFile(blob, name, title) : saveBlob(blob, name);
+
   // pdf: { file: "letters.pdf", page: 3 } (optional)
   window.printSheets = function (sheets, pdf) {
     if (window.__PDF_EXPORT) return doPrint(sheets); // used when building the PDF packs
@@ -29,14 +61,13 @@
         paper.innerHTML = sheets[0];
         const holder = h("div", { class: "preview-holder" }, paper);
         const fit = () => { const r = holder.getBoundingClientRect(), z = parseFloat($("#stage").style.transform.replace(/[^0-9.]/g, "")) || 1; const sc = Math.min((r.height / z - 10) / H, (r.width / z - 10) / W); paper.style.transform = `scale(${sc})`; };
-        const pdfUrl = pdf ? `assets/print/${pdf.file}${pdf.page ? "#page=" + pdf.page : ""}` : null;
         const btns = h("div", { class: "preview-side" },
           pic("printer", 110),
           h("div", { class: "t", style: { fontSize: "26px", fontWeight: 700 } }, sheets.length > 1 ? sheets.length + " pages ready" : "Your sheet is ready"),
-          IN_FRAME ? h("div", { class: "hand", style: { fontSize: "24px" } }, "Printing is switched off on this preview page. Open the PDF, or use the app from its own web address.") : null,
+          IN_FRAME ? h("div", { class: "hand", style: { fontSize: "24px" } }, "Printing is switched off on this preview page. Share or save the PDF instead.") : null,
           h("button", { class: "pbtn green", onclick: () => doPrint(sheets) }, ib("print", "Print now")),
-          pdfUrl ? h("a", { class: "pbtn blue", href: pdfUrl, target: "_blank", rel: "noopener", style: { textDecoration: "none", textAlign: "center" } }, ib("pdf", "Open PDF")) : null,
-          h("div", { class: "hand", style: { fontSize: "22px", color: "var(--ink-soft)" } }, "Tip: on iPad, open the PDF and tap Share → Print."));
+          ...(pdf ? pdfButtons(pdf.file, pdf.title || "StoryBloom worksheets") : []),
+          pdf && canShareFiles ? h("div", { class: "hand", style: { fontSize: "22px", color: "var(--ink-soft)" } }, (pdf.page ? "The PDF has the whole set. " : "") + "Share → WhatsApp, Files or Print.") : null);
         body.append(h("div", { class: "preview-wrap" }, holder, btns));
         requestAnimationFrame(fit);
       }
@@ -165,13 +196,24 @@
   };
 
   window.MAKERS = MAKERS; window.COLOURING = COLOURING;
+  const PACK_SHEETS = {
+    "letters-a-z.pdf": () => LETTERS.map(L => MAKERS.letter(L.l)),
+    "sight-words.pdf": () => SIGHT.map((s, i) => MAKERS.sight(i)),
+    "word-families.pdf": () => Object.keys(FAMILIES).map(f => MAKERS.family(f)),
+    "phonics-practice.pdf": () => [MAKERS.cutmatch(), MAKERS.cutmatch(), MAKERS.cutmatch(), MAKERS.begin(), MAKERS.begin(), MAKERS.begin()],
+    "story-order.pdf": () => STORIES.map(s => MAKERS.sequence(s.id)),
+    "reader-questions.pdf": () => READERS.map(b => MAKERS.reader(b.id)),
+    "colouring.pdf": () => COLOURING.map(c => MAKERS.colour(c.id)),
+    "activity-cards.pdf": () => ACTIVITIES.map(a => activitySheet(a)[0]),
+    "reading-chart.pdf": () => [MAKERS.chart()]
+  };
   function openPdfPacks() {
     openWin({
       title: "PDF Packs",
       build(body) {
-        body.append(h("div", { class: "hand hint" }, "Open, save or print complete sets"));
-        pager(body, PDF_PACKS, 9, p => h("a", { class: "pick", href: "assets/print/" + p.file, target: "_blank", rel: "noopener", style: { textDecoration: "none", color: "inherit" } },
-          pic("paper", 90), h("div", { class: "t", style: { fontSize: "22px" } }, p.t), h("div", { class: "s" }, p.n + (p.n > 1 ? " pages" : " page") + " · PDF")), { cols: $("#stage").classList.contains("portrait") ? 3 : 3 });
+        body.append(h("div", { class: "hand hint" }, canShareFiles ? "Print, share or save complete sets" : "Print or save complete sets"));
+        pager(body, PDF_PACKS, 9, p => h("button", { class: "pick", onclick: () => printSheets(PACK_SHEETS[p.file](), { file: p.file, title: p.t }) },
+          pic("paper", 90), h("div", { class: "t", style: { fontSize: "22px" } }, p.t), h("div", { class: "s" }, p.n + (p.n > 1 ? " pages" : " page") + " · PDF")), { cols: 3 });
       }
     });
   }
@@ -260,7 +302,7 @@
         const tools = h("div", { style: { gridColumn: "1 / 3", display: "flex", gap: "10px", justifyContent: "center" } });
         body.append(h("div", { class: "colour-wrap" }, cv, h("div", { style: { display: "flex", flexDirection: "column", gap: "14px", justifyContent: "center" } }, pal,
           h("button", { class: "pbtn small white", onclick: () => { if (undoStack.length) ctx.putImageData(undoStack.pop(), 0, 0); } }, ib("undo", "Undo", 20)),
-          h("button", { class: "pbtn small white", onclick: () => { const a = h("a", { href: cv.toDataURL("image/png"), download: c.id + "-coloured.png" }); a.click(); } }, ib("save", "Save", 20)),
+          h("button", { class: "pbtn small white", onclick: () => cv.toBlob(bl => bl && shareOrSaveBlob(bl, "StoryBloom-" + c.id + "-coloured.png", "My colouring"), "image/png") }, ib(canShareFiles ? "share" : "save", canShareFiles ? "Share" : "Save", 20)),
           h("button", { class: "pbtn small green", onclick: () => celebrate("colour:" + c.id, { msg: "Beautiful!" }) }, ib("check", "Done", 20)))));
         const img = new Image();
         img.onload = () => { cv.width = img.width; cv.height = img.height; ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0); };

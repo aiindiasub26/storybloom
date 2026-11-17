@@ -28,6 +28,7 @@
     eraser: '<path d="M14.5 4.5l5 5-9 9h-5l-2.5-2.5z" fill="currentColor" fill-opacity=".15"/><path d="M9 10l5 5M12 20.5h8"/>',
     undo: '<path d="M8.5 6.5L4 11l4.5 4.5"/><path d="M4 11h10a5.5 5.5 0 010 11h-3"/>',
     save: '<path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 19.5h15"/>',
+    share: '<circle cx="17.5" cy="5.5" r="2.6"/><circle cx="6.5" cy="12" r="2.6"/><circle cx="17.5" cy="18.5" r="2.6"/><path d="M8.8 10.7l6.4-3.9M8.8 13.3l6.4 3.9"/>',
     party: '<path d="M4 20l4.5-12 7.5 7.5z" fill="currentColor" fill-opacity=".2"/><path d="M14 4.5l.6 2M19 6l-2 1.3M19.5 11l-2-.3M12 8.5l2-2"/>',
     dance: '<circle cx="13" cy="4.5" r="2"/><path d="M12.5 7.5l-1 6 3.5 3 .5 4.5M11.5 13.5L7 17M12 9l-5-1.5M12.5 9l5 2.5"/>',
     blend: '<path d="M12 12m-1.5 0a1.5 1.5 0 103 0 4 4 0 10-8 0 6.5 6.5 0 1013 0 9 9 0 10-18 0"/>',
