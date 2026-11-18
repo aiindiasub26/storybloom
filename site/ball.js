@@ -1,9 +1,7 @@
 /* The full stop of the big "unscrolled." pops out as a ball when the page starts scrolling.
    It bounces calmly off the screen edges and the page's cards and buttons, picks up energy
    from scrolling, settles when scrolling stops, can be flicked, and flies back into the word
-   when you return to the top. A cat on a window sill at the bottom of the screen watches it,
-   swats it when it comes within reach, and naps when everything is still.
-   Nothing moves for people who ask for reduced motion. */
+   when you return to the top. Nothing moves for people who ask for reduced motion. */
 (function () {
   "use strict";
   var word = document.querySelector(".word"), stop = word && word.querySelector(".stop");
@@ -38,23 +36,7 @@
     var s = stop.getBoundingClientRect(), b = base.getBoundingClientRect();
     return { x: s.left + ink.cx, y: b.top + ink.cy, d: ink.d };
   }
-  var cat = document.getElementById("cat");
-  var pupils = cat && cat.querySelector(".pupils");
-  // the ball is a toy-ball size for the cat: just under a third of its height
-  var freeSize = function (dd) { return cat && cat.offsetHeight ? Math.round(cat.offsetHeight * 0.306) : Math.min(76, Math.max(40, dd * 1.8)); };
-  // the cat's shapes on screen (its drawing is 120 x 140 units)
-  function catGeom() {
-    if (!cat || !cat.offsetHeight) return null;
-    var R = cat.getBoundingClientRect(), k = R.height / 140, X = function (x) { return R.left + x * k; }, Y = function (y) { return R.top + y * k; };
-    return {
-      k: k,
-      head: { x: X(60), y: Y(44), r: 26 * k },
-      eyes: { x: X(60), y: Y(46) },
-      shoulder: { x: X(50), y: Y(86) },
-      body: { left: X(32), right: X(88), top: Y(70), bottom: Y(118), width: 1 },
-      sill: { left: X(-40), right: document.documentElement.clientWidth, top: Y(118), bottom: Y(126), width: 1 }
-    };
-  }
+  var freeSize = function (dd) { return Math.min(76, Math.max(40, dd * 1.8)); }; // the ball is just under twice the full stop
 
   function draw() {
     var r = d / 2;
@@ -77,7 +59,7 @@
     v = withPop ? { x: (Math.random() < 0.5 ? -1 : 1) * (160 + Math.random() * 160), y: -560 } : { x: 0, y: 0 };
     state = "free"; flight = null;
     stop.classList.add("gone"); ball.style.display = "block"; grip.style.display = "block";
-    catAwake(); draw(); wake();
+    draw(); wake();
   }
   function goHome() {
     if (state !== "free") return;
@@ -89,7 +71,6 @@
     ball.style.display = "none"; grip.style.display = "none";
     stop.classList.remove("gone");
     stop.classList.remove("plop"); void stop.offsetWidth; stop.classList.add("plop");
-    lookAt(homeSpot()); napSoon();
   }
 
   function wake() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
@@ -106,11 +87,11 @@
       p.x = flight.from.x + (h.x - flight.from.x) * e;
       p.y = flight.from.y + (h.y - flight.from.y) * e - Math.sin(Math.PI * t) * 90;
       d = flight.d0 + (h.d - flight.d0) * e;
-      draw(); lookAt(p);
+      draw();
       if (t >= 1) return landHome();
       raf = requestAnimationFrame(frame); return;
     }
-    if (state === "drag") { d += (dTarget - d) * Math.min(1, dt * 8); draw(); lookAt(p); raf = requestAnimationFrame(frame); return; }
+    if (state === "drag") { d += (dTarget - d) * Math.min(1, dt * 8); draw(); raf = requestAnimationFrame(frame); return; }
     if (state !== "free") return;
 
     d += (dTarget - d) * Math.min(1, dt * 8);
@@ -123,8 +104,6 @@
 
     var els = document.querySelectorAll(OBSTACLES), rects = [];
     for (var i = 0; i < els.length; i++) rects.push(els[i].getBoundingClientRect());
-    var C = catGeom();
-    if (C) { rects.push(C.sill); rects.push(C.body); }
     var rv = dt > 0 ? -scrolled / dt : 0; // the page's cards move as it scrolls, and push the ball
     ghost = false;
     var STEPS = 3;
@@ -150,59 +129,11 @@
         var relx = v.x, rely = v.y - rv, vn = relx * nx + rely * ny;
         if (vn < 0) { relx -= (1 + BOUNCE_OBJ) * vn * nx; rely -= (1 + BOUNCE_OBJ) * vn * ny; v.x = relx; v.y = rely + rv; }
       }
-      // the cat's head is round
-      if (C) {
-        var hx = p.x - C.head.x, hy = p.y - C.head.y, hd = Math.hypot(hx, hy), need = r + C.head.r;
-        if (hd < need && hd > 0) {
-          var ux = hx / hd, uy = hy / hd; p.x = C.head.x + ux * need; p.y = C.head.y + uy * need;
-          var vh = v.x * ux + v.y * uy; if (vh < 0) { v.x -= (1 + BOUNCE_OBJ) * vh * ux; v.y -= (1 + BOUNCE_OBJ) * vh * uy; }
-        }
-      }
     }
     draw();
-    var inReach = catThink(now, C, r);
     var resting = p.y + r >= B.bottom - 0.5 && Math.abs(v.y) < 1 && Math.abs(v.x) < 6;
-    if (resting && !scrolled && !inReach) { v.x = 0; return; } // rest until something happens
+    if (resting && !scrolled) { v.x = 0; return; } // sleep until something happens
     raf = requestAnimationFrame(frame);
-  }
-
-  /* ---------- the cat ---------- */
-  var swatAt = 0, swatReady = 0, napTimer = 0;
-  function lookAt(pt) {
-    var C = catGeom(); if (!C || !pupils || !pt) return;
-    var dx = pt.x - C.eyes.x, dy = pt.y - C.eyes.y, L = Math.hypot(dx, dy) || 1;
-    pupils.setAttribute("transform", "translate(" + (dx / L * 2.4).toFixed(2) + " " + (dy / L * 1.6).toFixed(2) + ")");
-  }
-  function catAwake() { if (!cat) return; clearTimeout(napTimer); if (cat.classList.contains("sleep")) { cat.classList.remove("sleep"); blink(); } }
-  function napSoon() { if (!cat) return; clearTimeout(napTimer); napTimer = setTimeout(function () { if (state === "home") cat.classList.add("sleep"); }, 5000); }
-  function blink(ms) { if (!cat || cat.classList.contains("sleep")) return; cat.classList.add("blink"); setTimeout(function () { cat.classList.remove("blink"); }, ms || 150); }
-  // Watches the ball; when it comes within reach, waits a beat, then swats it away.
-  function catThink(now, C, r) {
-    if (!C) return false;
-    lookAt(p);
-    var near = Math.hypot(p.x - C.head.x, p.y - C.head.y);
-    cat.classList.toggle("alert", near < 320);
-    var reach = 66 * C.k + r, toPaw = Math.hypot(p.x - C.shoulder.x, p.y - C.shoulder.y);
-    var inReach = toPaw < reach && state === "free";
-    if (!inReach) { swatAt = 0; return false; }
-    if (now < swatReady) return true;
-    if (!swatAt) { swatAt = now + 200 + Math.random() * 380; return true; }   // a cat's pause
-    if (now < swatAt) return true;
-    // swat: paw swings toward the ball, the ball flies away from the cat and up
-    var ax = p.x - C.shoulder.x, ay = p.y - C.shoulder.y, L = Math.hypot(ax, ay) || 1;
-    var deg = (Math.atan2(ay, ax) - Math.PI / 2) * 180 / Math.PI; if (deg > 180) deg -= 360; if (deg < -180) deg += 360;
-    cat.style.setProperty("--swat", Math.max(-150, Math.min(150, deg)).toFixed(0) + "deg");
-    cat.classList.add("swat"); setTimeout(function () { cat.classList.remove("swat"); }, 230);
-    var power = 520 + Math.random() * 260;
-    v.x = ax / L * power; v.y = ay / L * power - 420;
-    if (v.x > -120 && C.head.x > innerWidth / 2) v.x = -(260 + Math.random() * 200); // send it back into the room
-    swatAt = 0; swatReady = now + 900;
-    return false;
-  }
-  if (cat) {
-    // blink now and then; a tap on the cat gets a slow blink back
-    (function idleBlink() { setTimeout(function () { blink(); idleBlink(); }, 3200 + Math.random() * 3800); })();
-    cat.addEventListener("pointerdown", function () { catAwake(); blink(650); });
   }
 
   addEventListener("scroll", function () {
@@ -245,5 +176,5 @@
   grip.addEventListener("pointercancel", release);
 
   var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-  ready.then(function () { measure(); if (scrollY > 40) detach(false); else { lookAt(homeSpot()); napSoon(); } });
+  ready.then(function () { measure(); if (scrollY > 40) detach(false); });
 })();
